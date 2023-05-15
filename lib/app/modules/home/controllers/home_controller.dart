@@ -1,9 +1,25 @@
+import 'package:bhashantram/app/common/consts/consts.dart';
+import 'package:bhashantram/app/data/ui_models/menu_model.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  //TODO: Implement HomeController
+  List<MenuModel> menuItems = [
+    MenuModel(
+      menuBackgroundImage: AssetConsts.flagOne,
+      menuIcon: AssetConsts.translate,
+      menuTitle: 'Converse',
+      menuSubTitle: 'Start converstation to your preferred language',
+      onTapMenu: (){}
+    ),
+    MenuModel(
+      menuBackgroundImage: AssetConsts.flagTwo,
+      menuIcon: AssetConsts.camera,
+      menuTitle: 'Chat Bot',
+      menuSubTitle: 'Ask question to the bot',
+      onTapMenu: (){}
+    ),
+  ];
 
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
@@ -18,6 +34,4 @@ class HomeController extends GetxController {
   void onClose() {
     super.onClose();
   }
-
-  void increment() => count.value++;
 }

@@ -36,6 +36,11 @@ class InternetConnectionManager {
     bool? cancelOnError,
   }) async {
     final result = await Connectivity().checkConnectivity();
+    if (result == ConnectivityResult.wifi) {
+      _isWifi.value = true;
+    } else {
+      _isWifi.value = false;
+    }
     onConnection((result == ConnectivityResult.mobile) || (result == ConnectivityResult.wifi));
     Connectivity().onConnectivityChanged.listen(
       (ConnectivityResult event) {

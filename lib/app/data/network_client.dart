@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bhashantram/app/common/custom_snackbar.dart';
 import 'package:dio/dio.dart';
 
 enum RestApiMethod { get, post }
@@ -10,6 +11,14 @@ class NetworkClient {
 
   Dio dio = Dio();
 
+  showError(DioError e) {
+    try {
+      // showSnackBar(jsonDecode(e.response.toString())['message'] ?? e.message, isError: true);
+    } catch (error) {
+      // showSnackBar(e.message, isError: true);
+    }
+  }
+
   Future<Map<String, dynamic>?> _restApi<T>(
     String path, {
     required RestApiMethod apiMethod,
@@ -17,6 +26,7 @@ class NetworkClient {
     dynamic body = const {},
     bool isBearerToken = false,
     bool showError = true,
+    bool showResponseLog = true,
   }) async {
     try {
       ///logging the POST endpoint and PAYLOAD
@@ -45,8 +55,10 @@ class NetworkClient {
       }
 
       ///logging the RESPONSE details
-      log('${response?.data}', name: "RESPONSE");
-      log('${response?.statusCode}', name: "RESPONSE STATUS CODE");
+      if(showResponseLog){
+        log('${response?.data}', name: "RESPONSE");
+        log('${response?.statusCode}', name: "RESPONSE STATUS CODE");
+      }
 
       ///if nor error then return response else return NUll
       if (response?.data is Map?) {
@@ -57,9 +69,9 @@ class NetworkClient {
           if (showError) {
             String errorMessage = '${x?['message'].toString()}';
             if (!errorMessage.contains('SocketException') && !errorMessage.contains('HttpException')) {
-              // showSnackBar(errorMessage, isError: true);
+              showSnackBar(errorMessage, isError: true);
             } else {
-              // showSnackBar('Something went wrong!', isError: true);
+              showSnackBar('Something went wrong!', isError: true);
             }
           }
         }
@@ -69,7 +81,7 @@ class NetworkClient {
       log('${e.response}', name: 'DIO EXCEPTION');
       if (showError) {
         if (!e.toString().contains('SocketException') && !e.toString().contains('HttpException')) {
-          // this.showError(e);
+          this.showError(e);
         } else {
           // showSnackBar('Something went wrong!', isError: true);
         }
@@ -88,6 +100,19 @@ class NetworkClient {
       path,
       body: body,
       apiMethod: RestApiMethod.post,
+      showError: showError,
+      headers: header,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getApi<T>(
+    String path, {
+    bool showError = true,
+    Map<String, dynamic>? header,
+  }) async {
+    return await _restApi(
+      path,
+      apiMethod: RestApiMethod.get,
       showError: showError,
       headers: header,
     );
