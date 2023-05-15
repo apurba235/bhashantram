@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../../../common/consts/color_consts.dart';
 import '../controllers/chat_bot_controller.dart';
 
 class ChatBotView extends GetView<ChatBotController> {
@@ -15,22 +16,26 @@ class ChatBotView extends GetView<ChatBotController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 10,
-        leadingWidth: 30,
-        leading:    BackButton(
-          color: Colors.black,
+        backgroundColor: ColorConsts.whiteColor,
+        elevation: 2,
+        leadingWidth: 50,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Container(
+            width: 40,
+              child: Image.asset("assets/png/bot.png",width: 40,fit: BoxFit.cover,)),
         ),
         title: Row(
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("ChatGPT",style: TextStyle(fontSize: 16,color: Colors.black),),
+                Text("ChatGPT",style: TextStyle(fontSize: 16,color: ColorConsts.blackColor),),
                 Row(
                   children: [
-                    Icon(Icons.circle,color: Color(0xff00E173),size: 12,),
+                    Icon(Icons.circle,color: ColorConsts.greenColor,size: 12,),
                     SizedBox(width: 5,),
-                    Text("Online",style: TextStyle(fontSize: 12,color:Color(0xff00E173) )),
+                    Text("Online",style: TextStyle(fontSize: 12,color:ColorConsts.greenColor )),
                   ],
 
                 ),
@@ -48,8 +53,9 @@ class ChatBotView extends GetView<ChatBotController> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  //color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: ColorConsts.blackColor)
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -87,11 +93,12 @@ class ChatBotView extends GetView<ChatBotController> {
             padding: const EdgeInsets.only(bottom: 30,left: 10,right: 10),
             child: Card(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(10),
               ),
 
               elevation: 10,
               child: Container(
+                height: 60,
                 child: _buidTextComposer(),
               ),
             ),
@@ -107,7 +114,7 @@ class ChatBotView extends GetView<ChatBotController> {
     return Column(
       children: [
         SizedBox(height: 20,),
-        Center(child: Text("Select Language",style: TextStyle(fontSize: 16,color: Color(0xff3080ED)),)),
+        Center(child: Text("Select Language",style: TextStyle(fontSize: 16,color: ColorConsts.blueColor),)),
         Container(
           height: MediaQuery.of(context).size.height/2.2,
           child: ListView.builder(
@@ -117,10 +124,10 @@ class ChatBotView extends GetView<ChatBotController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 15,),
-                Text(myList[index],style:TextStyle(fontSize: 12,color: Color(0xff3080ED))),
+                Text(myList[index],style:TextStyle(fontSize: 12,color: ColorConsts.blueColor)),
                 SizedBox(height: 15,),
                 Divider(
-                    color: Color(0xff3080ED)
+                    color:ColorConsts.blueColor
                 )
               ],
             );
@@ -138,7 +145,7 @@ class ChatBotView extends GetView<ChatBotController> {
             ),
             height: 40,
             child: Center(
-                child: Text("Select",style:TextStyle(fontSize: 20,color: Colors.white))),
+                child: Text("Select",style:TextStyle(fontSize: 20,color: ColorConsts.whiteColor))),
           ),
         ),
       ],
@@ -153,12 +160,12 @@ class ChatBotView extends GetView<ChatBotController> {
              Expanded(
                child:
                TextField(
-           decoration: InputDecoration.collapsed(hintText: "Hello ChatGPT!",hintStyle:TextStyle(fontSize: 16,color: Color(0xff3080ED))), ), ),
+           decoration: InputDecoration.collapsed(hintText: "Hello ChatGPT!",hintStyle:TextStyle(fontSize: 16,color: ColorConsts.blueColor)), ), ),
          IconButton(onPressed: () {
           // _sendMessage();
-         }, icon: Icon(Icons.mic,color: Color(0xffB6B6B6),)), IconButton(onPressed: () {
+         }, icon: Icon(Icons.mic,color: ColorConsts.greyColor)), IconButton(onPressed: () {
           // _sendMessage();
-         }, icon: Icon(Icons.send,color: Color(0xff3080ED),)),
+         }, icon: Image.asset("assets/png/send.png")),
      ], ),
        );
    }
