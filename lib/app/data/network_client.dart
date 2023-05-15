@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:bhashantram/app/common/custom_snackbar.dart';
+import 'package:bhashantram/app/common/widget/snackbar/custom_snackbar.dart';
 import 'package:dio/dio.dart';
 
 enum RestApiMethod { get, post }
