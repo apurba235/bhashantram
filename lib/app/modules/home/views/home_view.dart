@@ -1,5 +1,6 @@
 import 'package:bhashantram/app/common/consts/consts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 
@@ -10,6 +11,11 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+            statusBarColor: Colors.blueAccent
+        )
+    );
     return Scaffold(
       body: Column(
         children: [

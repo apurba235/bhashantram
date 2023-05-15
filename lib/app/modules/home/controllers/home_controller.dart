@@ -6,20 +6,17 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   List<MenuModel> menuItems = [
     MenuModel(
-      menuBackgroundImage: AssetConsts.flagOne,
-      menuIcon: AssetConsts.translate,
-      menuTitle: 'Converse',
-      menuSubTitle: 'Start converstation to your preferred language',
-      onTapMenu: (){}
-    ),
+        menuBackgroundImage: AssetConsts.flagOne,
+        menuIcon: AssetConsts.translate,
+        menuTitle: 'Converse',
+        menuSubTitle: 'Start converstation to your preferred language',
+        onTapMenu: () => Get.toNamed(Routes.CONVERSE)),
     MenuModel(
       menuBackgroundImage: AssetConsts.flagTwo,
       menuIcon: AssetConsts.camera,
       menuTitle: 'Chat Bot',
       menuSubTitle: 'Ask question to the bot',
-      onTapMenu: (){
-        Get.toNamed(Routes.CHAT_BOT);
-      }
+      onTapMenu: () => Get.toNamed(Routes.CHAT_BOT),
     ),
   ];
 
