@@ -8,4 +8,5 @@ class ColorConsts{
   static const greenColor = Color(0xff00E173);
   static const blueColor = Color(0xff3080ED);
   static const tomatoRed = Color(0xffFF671F);
+  static const tomatoRed = Color(0xffFF671F);
 }
