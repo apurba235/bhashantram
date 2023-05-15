@@ -11,4 +11,7 @@ class AssetConsts {
   static const microphone = '$basePathPng/microphone.png';
   static const translate = '$basePathPng/translate.png';
   static const camera = '$basePathPng/camera.png';
+  static const copy = '$basePathPng/copy.png';
+  static const share = '$basePathPng/share.png';
+  static const speaker = '$basePathPng/speaker.png';
 }

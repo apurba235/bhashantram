@@ -5,10 +5,12 @@ abstract class Routes {
   Routes._();
   static const HOME = _Paths.HOME;
   static const CHAT_BOT = _Paths.CHAT_BOT;
+  static const CONVERSE = _Paths.CONVERSE;
 }
 
 abstract class _Paths {
   _Paths._();
   static const HOME = '/home';
   static const CHAT_BOT = '/chat-bot';
+  static const CONVERSE = '/converse';
 }
