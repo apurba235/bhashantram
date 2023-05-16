@@ -5,9 +5,9 @@ import 'package:dio/dio.dart';
 enum RestApiMethod { get, post }
 
 class NetworkClient {
-  static final NetworkClient instance = NetworkClient._();
-
-  NetworkClient._();
+  // static final NetworkClient instance = NetworkClient._();
+  //
+  // NetworkClient._();
 
   Dio dio = Dio();
 
@@ -55,7 +55,7 @@ class NetworkClient {
       }
 
       ///logging the RESPONSE details
-      if(showResponseLog){
+      if (showResponseLog) {
         log('${response?.data}', name: "RESPONSE");
         log('${response?.statusCode}', name: "RESPONSE STATUS CODE");
       }
@@ -95,6 +95,7 @@ class NetworkClient {
     required dynamic body,
     bool showError = true,
     Map<String, dynamic>? header,
+    required bool showResponse,
   }) async {
     return await _restApi(
       path,
@@ -102,6 +103,7 @@ class NetworkClient {
       apiMethod: RestApiMethod.post,
       showError: showError,
       headers: header,
+      showResponseLog: showResponse,
     );
   }
 
@@ -109,12 +111,14 @@ class NetworkClient {
     String path, {
     bool showError = true,
     Map<String, dynamic>? header,
+    required bool showResponse,
   }) async {
     return await _restApi(
       path,
       apiMethod: RestApiMethod.get,
       showError: showError,
       headers: header,
+      showResponseLog: showResponse,
     );
   }
 }
