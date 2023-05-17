@@ -1,5 +1,6 @@
 import 'package:bhashantram/app/data/network_client.dart';
-import 'package:bhashantram/app/data/network_models/network_models.dart';
+import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
+import 'package:bhashantram/app/data/network_models/language_models.dart';
 
 class BhashiniCalls extends NetworkClient {
   BhashiniCalls._();
@@ -8,10 +9,20 @@ class BhashiniCalls extends NetworkClient {
 
   static const getModelsURL = 'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/getModelsPipeline';
 
+  late Map<String, dynamic> computeHeader;
+
   var configHeader = {
     'userID': '965355806bf84442a8a168259ed8c06f',
     'ulcaApiKey': '4209d60edc-70e5-4b71-8427-c4665743e909'
   };
+
+  void generateComputeHeader(String key, String value) {
+    computeHeader = {
+      'Accept': '*/*',
+      'User-Agent': ' Thunder Client (https://www.thunderclient.com)',
+      key: value
+    };
+  }
 
   Future<LanguageModels?> getLanguages() async {
     Map<String, dynamic>? response = await postApi(
@@ -25,8 +36,64 @@ class BhashiniCalls extends NetworkClient {
         "pipelineRequestConfig": {"pipelineId": '64392f96daac500b55c543cd'}
       },
       header: configHeader,
-      showResponse: true,
+      showResponse: false,
     );
     return (response == null) ? null : LanguageModels.fromJson(response);
   }
+
+  /// only for Asr, Translation and Tts i.e. from audio generate translation in target language and generate speech in target language.
+  Future<AsrTranslationTtsResponse?> computeAsrTranslationTts(
+      String apiUrl,
+      String sourceLang,
+      String targetLang,
+      String audioInput,
+      String asrId,
+      String translationId,
+      String ttsId) async {
+    Map<String, dynamic>? response = await postApi(
+      apiUrl,
+      body: {
+        "pipelineTasks": [
+          {
+            "taskType": "asr",
+            "config": {
+              "language": {"sourceLanguage": sourceLang},
+              "serviceId": asrId,
+              "audioFormat": "wav",
+              "samplingRate": 16000
+            }
+          },
+          {
+            "taskType": "translation",
+            "config": {
+              "language": {
+                "sourceLanguage": sourceLang,
+                "targetLanguage": targetLang
+              },
+              "serviceId": translationId
+            }
+          },
+          {
+            "taskType": "tts",
+            "config": {
+              "language": {"sourceLanguage": targetLang},
+              "gender": "female",
+              "serviceId": ttsId
+            }
+          }
+        ],
+        "inputData": {
+          "audio": [
+            {"audioContent": audioInput}
+          ]
+        }
+      },
+      header: computeHeader,
+      showResponse: true,
+    );
+    return response == null
+        ? null
+        : AsrTranslationTtsResponse.fromJson(response);
+  }
+
 }

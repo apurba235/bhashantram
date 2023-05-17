@@ -2,8 +2,11 @@ import 'package:bhashantram/app/common/consts/asset_consts.dart';
 import 'package:bhashantram/app/common/consts/color_consts.dart';
 import 'package:bhashantram/app/common/widget/widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
+import 'package:share_plus/share_plus.dart';
 import '../controllers/converse_controller.dart';
 
 class ConverseView extends GetView<ConverseController> {
@@ -12,18 +15,19 @@ class ConverseView extends GetView<ConverseController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: ColorConsts.whiteColor,
-        appBar: AppBar(
-          title: const Text(
-            'Converse',
-            style: TextStyle(color: ColorConsts.blackColor, fontSize: 24),
-          ),
-          automaticallyImplyLeading: true,
-          backgroundColor: ColorConsts.whiteColor,
-          elevation: 0.0,
-          foregroundColor: ColorConsts.blackColor,
+      backgroundColor: ColorConsts.whiteColor,
+      appBar: AppBar(
+        title: const Text(
+          'Converse',
+          style: TextStyle(color: ColorConsts.blackColor, fontSize: 24),
         ),
-        body: Obx(() {
+        automaticallyImplyLeading: true,
+        backgroundColor: ColorConsts.whiteColor,
+        elevation: 0.0,
+        foregroundColor: ColorConsts.blackColor,
+      ),
+      body: Obx(
+        () {
           return controller.languageLoader.value
               ? const Center(
                   child: CircularProgressIndicator(),
@@ -42,26 +46,28 @@ class ConverseView extends GetView<ConverseController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 30.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        'English',
-                                        style: TextStyle(color: ColorConsts.blueColor),
-                                      ),
-                                      SizedBox(height: 12),
-                                      Text(
-                                        'Hi, how are you ?',
-                                        style: TextStyle(fontSize: 18, color: ColorConsts.blueColor),
-                                      ),
-                                      SizedBox(height: 15),
-                                    ],
+                              Obx(() {
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 30.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          controller.getLanguageName(controller.sourceLang.value ?? 'Source'),
+                                          style: const TextStyle(color: ColorConsts.blueColor),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          controller.input.value ?? 'Press mic to begin conversion',
+                                          style: const TextStyle(fontSize: 18, color: ColorConsts.blueColor),
+                                        ),
+                                        const SizedBox(height: 15),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ),
+                                );
+                              }),
                               const Divider(color: ColorConsts.blueColor),
                               Expanded(
                                 child: Padding(
@@ -70,34 +76,64 @@ class ConverseView extends GetView<ConverseController> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: const [
-                                          SizedBox(height: 15),
-                                          Text(
-                                            'Hindi',
-                                            style: TextStyle(color: ColorConsts.tomatoRed),
-                                          ),
-                                          SizedBox(height: 12),
-                                          Text(
-                                            'नमस्ते, क्या हालचाल ह ?',
-                                            style: TextStyle(fontSize: 18, color: ColorConsts.tomatoRed),
-                                          ),
-                                        ],
-                                      ),
+                                      Obx(() {
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 15),
+                                            Text(
+                                              controller.getLanguageName(controller.targetLang.value ?? 'Target'),
+                                              style: const TextStyle(color: ColorConsts.tomatoRed),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              controller.output.value ?? 'Press mic to begin conversion',
+                                              style: const TextStyle(fontSize: 18, color: ColorConsts.tomatoRed),
+                                            ),
+                                          ],
+                                        );
+                                      }),
                                       const SizedBox(height: 50),
                                       Row(
                                         children: [
                                           Row(
                                             children: [
-                                              Image.asset(AssetConsts.share),
+                                              GestureDetector(
+                                                onTap: controller.ttsFilePath.isNotEmpty
+                                                    ? () async {
+                                                        await Share.shareXFiles(
+                                                          [XFile(controller.ttsFilePath)],
+                                                          sharePositionOrigin:
+                                                              Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
+                                                        );
+                                                      }
+                                                    : null,
+                                                child: Image.asset(AssetConsts.share),
+                                              ),
                                               const SizedBox(width: 15),
-                                              Image.asset(AssetConsts.copy),
+                                              GestureDetector(
+                                                onTap: (controller.output.value?.isNotEmpty ?? false)
+                                                    ? () async {
+                                                        await Clipboard.setData(
+                                                          ClipboardData(text: controller.output.value ?? ''),
+                                                        );
+                                                        showSnackBar('Copied to clipboard');
+                                                      }
+                                                    : null,
+                                                child: Image.asset(AssetConsts.copy),
+                                              ),
                                             ],
                                           ),
                                           const Spacer(),
-                                          Image.asset(AssetConsts.speaker),
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (controller.ttsFilePath.isNotEmpty) {
+                                                controller.playRecordedAudio(controller.ttsFilePath);
+                                              }
+                                            },
+                                            child: Image.asset(AssetConsts.speaker),
+                                          ),
                                         ],
                                       ),
                                     ],
@@ -109,23 +145,40 @@ class ConverseView extends GetView<ConverseController> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ...List.generate(
-                            2,
-                            (index) => MicroPhone(
-                              onTapMic: index == 0
-                                  ? () {
-                                      ///Source
-                                    }
-                                  : () {
-                                      /// target
+                      Obx(() {
+                        return Stack(
+                          children: [
+                            if (controller.recordingOngoing.value) Lottie.asset(AssetConsts.recording, repeat: true),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ...List.generate(
+                                  2,
+                                  (index) => MicroPhone(
+                                    onTapMic: (ongoing) {
+                                      if ((controller.sourceLang.isNotEmpty ?? false) &&
+                                          (controller.targetLang.isNotEmpty ?? false)) {
+                                        controller.startRecording();
+                                      } else {
+                                        showSnackBar('Please select both language.');
+                                      }
                                     },
+                                    onTapRemove: ((controller.sourceLang.isNotEmpty ?? false) &&
+                                            (controller.targetLang.isNotEmpty ?? false))
+                                        ? (te) async {
+                                            controller.fromTarget = index == 0 ? false : true;
+                                            await controller.stopRecordingAndGetResult();
+                                            await controller.workingData();
+                                            controller.computeAsrTranslationTts();
+                                          }
+                                        : null,
+                                  ),
+                                )
+                              ],
                             ),
-                          )
-                        ],
-                      ),
+                          ],
+                        );
+                      }),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -290,7 +343,7 @@ class ConverseView extends GetView<ConverseController> {
                                             );
                                           }));
                                         }
-                                      : null,
+                                      : () => showSnackBar('Please select source language first.'),
                             ),
                           )
                         ],
@@ -299,6 +352,8 @@ class ConverseView extends GetView<ConverseController> {
                     ],
                   ),
                 );
-        }));
+        },
+      ),
+    );
   }
 }

@@ -13,6 +13,12 @@ dependencies:
   chat_gpt_sdk: 2.1.0
   http: ^0.13.6
   velocity_x: ^3.6.0
+  record: ^4.4.4
+  path_provider: ^2.0.14
+  permission_handler: ^10.2.0
+  lottie: ^2.3.2
+  audio_waveforms: ^1.0.0
+  share_plus: ^6.3.0
   flutter: 
     sdk: flutter
 
@@ -25,4 +31,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/png/
+    - assets/lottie/
 
