@@ -14,4 +14,6 @@ class AssetConsts {
   static const copy = '$basePathPng/copy.png';
   static const share = '$basePathPng/share.png';
   static const speaker = '$basePathPng/speaker.png';
+  static const bot = '$basePathPng/bot.png';
+  static const send = '$basePathPng/send.png';
 }

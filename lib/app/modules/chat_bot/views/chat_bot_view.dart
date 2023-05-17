@@ -1,3 +1,5 @@
+import 'package:bhashantram/app/common/consts/asset_consts.dart';
+import 'package:bhashantram/app/modules/chat_bot/views/response_animation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -22,7 +24,7 @@ class ChatBotView extends GetView<ChatBotController> {
             child: Container(
                 width: 40,
                 child: Image.asset(
-                  "assets/png/bot.png",
+                  AssetConsts.bot,
                   width: 40,
                   fit: BoxFit.cover,
                 )),
@@ -92,33 +94,41 @@ class ChatBotView extends GetView<ChatBotController> {
             ],
           ),
         ),
-        body: Column(
-          children: [
-            Obx(() {
-              return Flexible(
-                child: ListView.builder(
-                  itemCount: controller.chats.value.length,
-                  reverse: true,
-                  itemBuilder: (context, index) {
-                    return controller.chats.value[index];
-                  },
-                ),
-              );
-            }),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 30, left: 10, right: 10),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 10,
-                child: Container(
-                  height: 60,
-                  child: _buidTextComposer(),
+        body:
+        Padding(
+          padding: const EdgeInsets.only(left: 10,right: 10),
+          child: Column(
+            children: [
+
+              Obx(() {
+                return
+                  Flexible(
+                  child:
+                  ListView.builder(
+                    itemCount: controller.chats.value.length,
+                    reverse: true,
+                    itemBuilder: (context, index) {
+                      return controller.chats.value[index];
+                    },
+                  ),
+                );
+              }),
+            if(controller.isLoad.value)ThreeDots(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30, left: 10, right: 10),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 10,
+                  child: Container(
+                    height: 60,
+                    child: _buidTextComposer(),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ));
   }
 
@@ -185,6 +195,7 @@ class ChatBotView extends GetView<ChatBotController> {
         children: [
           Expanded(
             child: TextField(
+              autofocus: false,
               controller: controller.chatController,
               decoration: InputDecoration.collapsed(
                   hintText: "Hello ChatGPT!",
@@ -194,14 +205,17 @@ class ChatBotView extends GetView<ChatBotController> {
           ),
           IconButton(
               onPressed: () {
-                controller. sendMessage();
+               // controller. sendMessage();
               },
               icon: Icon(Icons.mic, color: ColorConsts.greyColor)),
           IconButton(
               onPressed: () {
-                // _sendMessage();
+                controller. sendMessage();
+                FocusManager.instance.primaryFocus?.unfocus();
+
+
               },
-              icon: Image.asset("assets/png/send.png")),
+              icon: Image.asset(AssetConsts.send)),
         ],
       ),
     );
