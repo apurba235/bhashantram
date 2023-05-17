@@ -214,10 +214,3 @@ class ConverseController extends GetxController {
     super.onClose();
   }
 }
-
-class ApiOutput {
-  String input;
-  String output;
-
-  ApiOutput({required this.input, required this.output});
-}
