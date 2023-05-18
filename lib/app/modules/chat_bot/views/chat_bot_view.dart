@@ -34,22 +34,22 @@ class ChatBotView extends GetView<ChatBotController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "ChatGPT",
                     style:
                         TextStyle(fontSize: 16, color: ColorConsts.blackColor),
                   ),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.circle,
                         color: ColorConsts.greenColor,
                         size: 12,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
-                      Text("Online",
+                      const Text("Online",
                           style: TextStyle(
                               fontSize: 12, color: ColorConsts.greenColor)),
                     ],
@@ -78,11 +78,11 @@ class ChatBotView extends GetView<ChatBotController> {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
-                        Text(
+                     const Text(
                           "Language",
                           style: TextStyle(fontSize: 12, color: Colors.black),
                         ),
-                        Icon(
+                        const Icon(
                           Icons.arrow_drop_down,
                           color: Color(0xff00E173),
                         )
@@ -99,7 +99,6 @@ class ChatBotView extends GetView<ChatBotController> {
           padding: const EdgeInsets.only(left: 10,right: 10),
           child: Column(
             children: [
-
               Obx(() {
                 return
                   Flexible(
@@ -197,17 +196,17 @@ class ChatBotView extends GetView<ChatBotController> {
             child: TextField(
               autofocus: false,
               controller: controller.chatController,
-              decoration: InputDecoration.collapsed(
+              decoration: const InputDecoration.collapsed(
                   hintText: "Hello ChatGPT!",
                   hintStyle:
-                      TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
+                      const TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
             ),
           ),
           IconButton(
               onPressed: () {
                // controller. sendMessage();
               },
-              icon: Icon(Icons.mic, color: ColorConsts.greyColor)),
+              icon: const Icon(Icons.mic, color: ColorConsts.greyColor)),
           IconButton(
               onPressed: () {
                 controller. sendMessage();

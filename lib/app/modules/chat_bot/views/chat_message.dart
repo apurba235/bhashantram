@@ -9,9 +9,7 @@ class ChatMessage extends StatelessWidget {
     required this.text,
     required this.sender
   }): super(key: key);
-  // Use for User Input and chatbot output
   final String text;
-  // Use for check sender is user or bot
   final String sender;
   @override
   Widget build(BuildContext context) {
@@ -36,7 +34,6 @@ class ChatMessage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child:
-                         // sender=='user'?
                           Column(
                             children: [
                               Text(text,style: TextStyle(fontSize: 12,fontFamily: 'Poppins',
@@ -46,19 +43,11 @@ class ChatMessage extends StatelessWidget {
                                   child: Container(
                                     margin: EdgeInsets.only(top: 10,right: 10),
                                       width: 25,
-                                      child: Image.asset(AssetConsts.speaker,fit: BoxFit.cover,))),
+                                      child:
+                                      Image.asset(AssetConsts.speaker,fit: BoxFit.cover,)
+                                  )),
                             ],
                           )
-                        //       :
-                        //
-                        // AnimatedTextKit(
-                        //   isRepeatingAnimation: false,
-                        //   totalRepeatCount: 0,
-                        //   repeatForever: false,
-                        //   animatedTexts: [
-                        //   TypewriterAnimatedText(text,textStyle: TextStyle(fontSize: 12,fontFamily: 'Poppins',
-                        //       color: sender=='user'?ColorConsts.whiteColor:ColorConsts.blackColor)),
-                        // ],),
                     )),
               ),
               Positioned(

@@ -9,152 +9,137 @@ import '../../../data/network_models/language_models.dart';
 import '../views/chat_message.dart';
 import 'package:http/http.dart' as http;
 
-
 class ChatBotController extends GetxController {
-
   // chatbot code
-   TextEditingController chatController = TextEditingController();
-   String apiKey = AppUrl.chatApikey;
-   Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
-   late String content;
-   late String contentlength;
-   late String check="-->";
-   RxBool isLoad=RxBool(false);
-   Future < void > sendMessage() async {
-     isLoad.value=true;
-     ChatMessage message = ChatMessage(text: chatController.text, sender: "user");
+  TextEditingController chatController = TextEditingController();
+  String apiKey = AppUrl.chatApikey;
+  Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
+  final String reasonToStop = 'stop';
+  late String check = "-->";
+  RxBool isLoad = RxBool(false);
+  Future<void> sendMessage() async {
+    isLoad.value = true;
+    ChatMessage message = ChatMessage(text: chatController.text, sender: "user");
 
-     chats.value.insert(0, message);
-     chats.refresh();
+    chats.value.insert(0, message);
+    chats.refresh();
 
-     log(chats.value.first.text,name:"check");
-     chatController.clear();
-     final response = await sendMessageToGpt(message.text);
-     ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
-     chats.value.insert(0, botMessage);
-     isLoad.value=false;
-     chats.refresh();
+    log(chats.value.first.text, name: "check");
+    chatController.clear();
+    final response = await sendMessageToGpt(message.text);
+    ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
+    chats.value.insert(0, botMessage);
+    isLoad.value = false;
+    chats.refresh();
+    isLoad.refresh();
+  }
 
-   }
-   final List<Map<String,String>>mymessage=[];
-   final List<String>finallist=[];
-   Future<String> sendMessageToGpt(String message)async{
-     var url = Uri.parse(AppUrl.chatUrl);
-     if(message.contains(check)){
-       mymessage.clear();
-       mymessage.add({
-         "role":"system",
-         "content":"You are an Indian Citizen working with Government going to act like a very helpful assistant with all the knowledge that there is to offer about India."
-             " You know everything there is to know about $message. You will be asked certain questions and you will respond very factually taking into context that the person asking the the questions is an Indian Citizen too."
-             " Try to provide your answers concisely within word limit of not more than 30 words and using a single sentence.",
-       });
+  final List<Map<String, String>> mymessage = [];
+  final List<String> finallist = [];
 
-       mymessage.add({
-         "role":"user",
-         "content":message,
-       });
+  Future sendMessageToGpt(String message) async {
+    if (message.contains(check)) {
+      mymessage.clear();
+      mymessage.add({
+        "role": "system",
+        "content": "You are an Indian Citizen working with Government going to act like a very helpful assistant with all the knowledge that there is to offer about India."
+            " You know everything there is to know about $message. You will be asked certain questions and you will respond very factually taking into context that the person asking the the questions is an Indian Citizen too."
+            " Try to provide your answers concisely within word limit of not more than 30 words and using a single sentence. For each user prompt, check if the question given by the user has the context of current conversation, if not, please say: I do not know.",
+      });
 
-     }
-     else{
-       mymessage.add({
-         "role":"user",
-         "content":"$message.Please provide your answer within the word limit of 100 words",
-       });
-     }
-     log('mylog>$mymessage');
+      mymessage.add({
+        "role": "user",
+        "content": message,
+      });
+    } else {
+      mymessage.add({
+        "role": "user",
+        "content": "All your answers should be within the word limit of 60 words. My message is: $message.",
+      });
+    }
 
-     Map < String, dynamic > body = {
-       "model": "gpt-3.5-turbo",
-       "messages": mymessage,
-       "max_tokens": 60,
-       "temperature":0.6,
-     };
-     final response = await http.post(url,
-         headers: {
-           "Content-Type": "application/json",
-           "api-key": "$apiKey"
-         },
-         body: json.encode(body));
+    dynamic response = await gptAPICall(mymessage);
+    String contentToReturn = '';
 
-     if (response.statusCode == 200) {
-       Map<String,dynamic>  parseResponse=json.decode(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> parseResponse = json.decode(response.body);
+      String finishReasonInResponse = parseResponse["choices"][0]["finish_reason"];
+      contentToReturn = parseResponse["choices"][0]["message"]["content"];
 
-       content=  parseResponse["choices"][0]["message"]["content"];
-       contentlength=parseResponse["choices"][0]["finish_reason"];
-       log("contentLength>>$contentlength");
-       content=content.trim();
-       if(mymessage.length==1){
-         content+="\n\n Please set the Topic in following manner :\n --> Topic_name";
+      while (finishReasonInResponse != reasonToStop) {
+        mymessage.add({"role": "assistant", "content": contentToReturn});
+        mymessage.add({"role": "user", "content": 'Please complete the previous answer.'});
 
-       }
-         mymessage.add({
-         "role":"assistant",
-         "content":content,
-         });
-       // finallist.add(content);
-       //
-       //
-       if(contentlength=='length'){
-         mymessage.add({
-         "role":"assistant",
-         "content":content,
-         });
-         mymessage.add({
-         "role":"user",
-         "content":"$message Please compelete the previous answer.",
-         });
+        response = await gptAPICall(mymessage);
 
-       }
-      await sendMessageToGpt(message);
+        if (response.statusCode == 200) {
+          parseResponse = json.decode(response.body);
+          finishReasonInResponse = parseResponse["choices"][0]["finish_reason"];
 
+          contentToReturn += ' ${parseResponse["choices"][0]["message"]["content"]}';
+        }
+      }
+      contentToReturn = contentToReturn.trim();
 
+      if (mymessage.length == 1) {
+        contentToReturn += "\nPlease set the Topic in following manner:\n--> Topic_name";
+      }
 
+      mymessage.add({
+        "role": "assistant",
+        "content": contentToReturn,
+      });
 
-       return content;
-     }
-     return "";
+      return contentToReturn;
+    }
+    return "";
+  }
 
+  Future<dynamic> gptAPICall(List<Map<String, String>> messageQueue) async {
+    var url = Uri.parse(AppUrl.chatUrl);
+    log('Sending: $mymessage');
 
-   }
+    Map<String, dynamic> body = {
+      "model": "gpt-3.5-turbo",
+      "messages": mymessage,
+      "max_tokens": 60,
+      "temperature": 0.6,
+    };
+    final response = await http.post(url, headers: {"Content-Type": "application/json", "api-key": apiKey}, body: json.encode(body));
+    log(response.body);
 
-   // end chatbot code
+    return response;
+  }
 
+  // end chatbot code
 
+  // language controler code
 
+  RxBool languageLoader = RxBool(false);
+  Rxn<LanguageModels?> languages = Rxn<LanguageModels>();
+  List<String> sourceLanguages = [];
+  RxnString sourceLang = RxnString();
+  RxnString targetLang = RxnString();
+  int selectedSourceLangIndex = -1;
+  int selectedTargetLangIndex = -1;
 
-   // language controler code
+  Future<void> getLanguages() async {
+    languageLoader.value = true;
+    LanguageModels? response = await BhashiniCalls.instance.getLanguages();
+    if (response != null) {
+      languages.value = response;
+    }
+    // else {
+    //   await showSnackBar();
+    // }
+    languageLoader.value = false;
+  }
 
-   RxBool languageLoader = RxBool(false);
-   Rxn<LanguageModels?> languages = Rxn<LanguageModels>();
-   List<String> sourceLanguages = [];
-   RxnString sourceLang = RxnString();
-   RxnString targetLang = RxnString();
-   int selectedSourceLangIndex = -1;
-   int selectedTargetLangIndex = -1;
-
-   Future<void> getLanguages() async {
-     languageLoader.value = true;
-     LanguageModels? response = await BhashiniCalls.instance.getLanguages();
-     if (response != null) {
-       languages.value = response;
-     }
-     // else {
-     //   await showSnackBar();
-     // }
-     languageLoader.value = false;
-   }
-   String getLanguageName(String code) => LanguageCode.languageCode.entries
-       .firstWhere((element) => element.key == code, orElse: () => MapEntry('', code))
-       .value;
-    //end language controoler code
-
-
-
-
-
+  String getLanguageName(String code) => LanguageCode.languageCode.entries.firstWhere((element) => element.key == code, orElse: () => MapEntry('', code)).value;
+  //end language controoler code
 
   @override
-  void onInit() async{
+  void onInit() async {
     await getLanguages();
 
     super.onInit();
@@ -169,5 +154,4 @@ class ChatBotController extends GetxController {
   void onClose() {
     super.onClose();
   }
-
 }
