@@ -195,7 +195,8 @@ class ConverseView extends GetView<ConverseController> {
                               onTapButton: index == 0
                                   ? () {
                                       Get.bottomSheet(isDismissible: false, Obx(() {
-                                        return AppBottomSheet(
+                                        return
+                                          AppBottomSheet(
                                           onTapSelect: () {
                                             Get.back();
                                           },
