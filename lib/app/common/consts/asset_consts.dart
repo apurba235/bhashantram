@@ -2,6 +2,7 @@ class AssetConsts {
   /// BasePaths
   static const basePath = 'assets';
   static const basePathPng = '$basePath/png';
+  static const basePathLottie = '$basePath/lottie';
 
   /// Png Assets
   static const flagOne = '$basePathPng/flag_one.png';
