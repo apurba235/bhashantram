@@ -172,7 +172,8 @@ class ChatBotView extends GetView<ChatBotController> {
                 );
               }),
         if(controller.isLoad.value)ThreeDots(),
-              Padding(
+
+            Padding(
                 padding: const EdgeInsets.only(bottom: 30, left: 10, right: 10),
                 child: Card(
                   shape: RoundedRectangleBorder(
@@ -184,7 +185,8 @@ class ChatBotView extends GetView<ChatBotController> {
                     child: _buidTextComposer(),
                   ),
                 ),
-              ),
+              )
+
             ],
           ),
         ));
@@ -192,9 +194,11 @@ class ChatBotView extends GetView<ChatBotController> {
 
 
   Widget _buidTextComposer() {
+
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15),
-      child: Row(
+      child:
+      Row(
         children: [
           Expanded(
             child: TextField(
@@ -204,6 +208,15 @@ class ChatBotView extends GetView<ChatBotController> {
                   hintText: "Hello ChatGPT!",
                   hintStyle:
                       const TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
+              onChanged: (v){
+                controller.getTransliterationInput();
+                if (!(v[v.length - 1]
+                    .contains(RegExp('[^A-Za-z]'))) &&
+                    (controller.sourceLang.isNotEmpty ??
+                        false)) {
+                  controller.computeTransliteration();
+                }
+                },
             ),
           ),
           IconButton(

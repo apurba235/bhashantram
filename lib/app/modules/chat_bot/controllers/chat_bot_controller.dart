@@ -19,6 +19,7 @@ class ChatBotController extends GetxController {
   final String reasonToStop = 'stop';
   late String check = "-->";
   RxBool isLoad = RxBool(false);
+  var isSelected="".obs;
 
   Future<void> sendMessage() async {
     isLoad.value = true;
@@ -149,6 +150,8 @@ class ChatBotController extends GetxController {
 
   Rxn<TransliterationModels?> transliterationModels = Rxn<TransliterationModels>();
   String transliterationModelsId="";
+  String transliterationInput="";
+  Rxn<TransliterationResponse?> hints = Rxn<TransliterationResponse>();
 
   Future<void> getTransliterationModels() async {
     TransliterationModels? response = await BhashiniCalls.instance.getTransliterationModels();
@@ -157,19 +160,19 @@ class ChatBotController extends GetxController {
     }
   }
 
-  // Future<void> computeTransliteration() async {
-  //   TransliterationResponse? response =
-  //   await BhashiniCalls.instance.computeTransliteration(transliterationModelsId, transliterationInput);
-  //   // if (response != null) {
-  //   //   hints.value = response;
-  //   // }
-  //   // // else {
-  //   // //   await showSnackBar();
-  //   // // }
-  //   // hints.value?.output?.first.target?.forEach((element) {
-  //   //   log(element, name: 'Hints');
-  //   // });
-  // }
+  Future<void> computeTransliteration() async {
+    TransliterationResponse? response =
+    await BhashiniCalls.instance.computeTransliteration(transliterationModelsId, transliterationInput);
+    if (response != null) {
+      hints.value = response;
+    }
+    // else {
+    //   await showSnackBar();
+    // }
+    hints.value?.output?.first.target?.forEach((element) {
+      log(element, name: 'Hints');
+    });
+  }
 
   void getTransliterationModelId() {
     transliterationModelsId = transliterationModels.value?.data
@@ -181,6 +184,17 @@ class ChatBotController extends GetxController {
         .modelId ??
         '';
     log(transliterationModelsId, name: 'Transliteration Model Id');
+  }
+
+  void getTransliterationInput() {
+    int index = 0;
+    for (int i = chatController.text.length - 1; i >= 0; i--) {
+      if (chatController.text[i].contains(RegExp('[^A-Za-z]'))) {
+        index = i + 1;
+        break;
+      }
+    }
+    transliterationInput = chatController.text.substring(index);
   }
 
 
