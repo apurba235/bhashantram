@@ -4,15 +4,18 @@ import 'package:flutter/material.dart';
 class MicroPhone extends StatelessWidget {
   const MicroPhone({
     super.key,
-    this.onTapMic,
+    required this.onTapMic, this.onTapRemove,
   });
 
-  final void Function()? onTapMic;
+  final void Function(TapDownDetails)? onTapMic;
+  final void Function(TapUpDetails)? onTapRemove;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTapMic,
+      onTapDown: onTapMic,
+      onTapUp: onTapRemove,
+      // onTap: onTapMic,
       child: Container(
         padding: const EdgeInsets.all(25),
         decoration: BoxDecoration(

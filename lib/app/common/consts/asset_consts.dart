@@ -2,6 +2,7 @@ class AssetConsts {
   /// BasePaths
   static const basePath = 'assets';
   static const basePathPng = '$basePath/png';
+  static const basePathLottie = '$basePath/lottie';
 
   /// Png Assets
   static const flagOne = '$basePathPng/flag_one.png';
@@ -14,6 +15,9 @@ class AssetConsts {
   static const copy = '$basePathPng/copy.png';
   static const share = '$basePathPng/share.png';
   static const speaker = '$basePathPng/speaker.png';
+
+  /// Lottie Assets
+  static const recording = '$basePathLottie/voice-line-wave-animation.json';
   static const bot = '$basePathPng/bot.png';
   static const send = '$basePathPng/send.png';
 }
