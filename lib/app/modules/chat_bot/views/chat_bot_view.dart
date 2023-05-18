@@ -58,111 +58,153 @@ class ChatBotView extends GetView<ChatBotController> {
                 ],
               ),
               Spacer(),
-              Obx((){
-                return
-                  Row(
+              Obx(() {
+                return Row(
                   children: [
                     ...List.generate(
                       1,
-                          (index) => LanguageButton(
-                            languageName: index == 0
-                            ? (controller.getLanguageName(controller.sourceLang.value ?? 'Language'))
+                      (index) => LanguageButton(
+                        languageName: index == 0
+                            ? (controller.getLanguageName(
+                                controller.sourceLang.value ?? 'Language'))
                             : "",
                         onTapButton: index == 0
                             ? () {
-                          Get.bottomSheet(isDismissible: false, Obx(() {
-                            return
-                              AppBottomSheet(
-                                onTapSelect: () {
-                                  controller.getTransliterationModelId();
-                                  Get.back();
-                                },
-                                selectButtonColor: (controller.sourceLang.value != null)
-                                    ? ColorConsts.blueColor
-                                    : ColorConsts.blueColor.withOpacity(0.3),
-                                customWidget: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        SizedBox(
-                                          height: Get.height * 0.4,
-                                          child: GridView.builder(
-                                            itemCount: (controller.languages.value?.languages?.length ?? 0),
-                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
-                                            itemBuilder: (cx, index) {
-                                              return Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      controller.sourceLang.value = controller.languages.value
-                                                          ?.languages?[index].sourceLanguage ??
-                                                          '';
-                                                      controller.selectedSourceLangIndex = index;
-                                                      controller.targetLang.value = null;
-                                                      controller.selectedTargetLangIndex = -1;
-                                                    },
-                                                    child: Container(
-                                                      padding: const EdgeInsets.symmetric(
-                                                        horizontal: 12.0,
-                                                        vertical: 20,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        color: index == controller.selectedSourceLangIndex
-                                                            ? Colors.grey.withOpacity(0.2)
-                                                            : null,
-                                                        borderRadius: BorderRadius.circular(12),
-                                                      ),
-                                                      child:
-                                                      Center(
-                                                        child: Text(
-                                                          controller.getLanguageName(
-                                                            controller.languages.value?.languages?[index]
-                                                                .sourceLanguage ??
-                                                                '',
+                                Get.bottomSheet(isDismissible: false, Obx(() {
+                                  return AppBottomSheet(
+                                    onTapSelect: () {
+                                      controller.getTransliterationModelId();
+                                      Get.back();
+                                    },
+                                    selectButtonColor:
+                                        (controller.sourceLang.value != null)
+                                            ? ColorConsts.blueColor
+                                            : ColorConsts.blueColor
+                                                .withOpacity(0.3),
+                                    customWidget: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 25.0, vertical: 20),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            SizedBox(
+                                              height: Get.height * 0.4,
+                                              child: GridView.builder(
+                                                itemCount: (controller
+                                                        .languages
+                                                        .value
+                                                        ?.languages
+                                                        ?.length ??
+                                                    0),
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                        crossAxisCount: 2,
+                                                        crossAxisSpacing: 10.0,
+                                                        mainAxisExtent: 80),
+                                                itemBuilder: (cx, index) {
+                                                  return Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .stretch,
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          controller.sourceLang
+                                                              .value = controller
+                                                                  .languages
+                                                                  .value
+                                                                  ?.languages?[
+                                                                      index]
+                                                                  .sourceLanguage ??
+                                                              '';
+                                                          controller
+                                                                  .selectedSourceLangIndex =
+                                                              index;
+                                                          controller.targetLang
+                                                              .value = null;
+                                                          controller
+                                                              .selectedTargetLangIndex = -1;
+                                                          controller.isloading
+                                                              .value =true;
+
+                                                        },
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 12.0,
+                                                            vertical: 20,
                                                           ),
-                                                          style: const TextStyle(color: ColorConsts.blueColor),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: index ==
+                                                                    controller
+                                                                        .selectedSourceLangIndex
+                                                                ? Colors.grey
+                                                                    .withOpacity(
+                                                                        0.2)
+                                                                : null,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              controller
+                                                                  .getLanguageName(
+                                                                controller
+                                                                        .languages
+                                                                        .value
+                                                                        ?.languages?[
+                                                                            index]
+                                                                        .sourceLanguage ??
+                                                                    '',
+                                                              ),
+                                                              style: const TextStyle(
+                                                                  color: ColorConsts
+                                                                      .blueColor),
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                  const Divider(color: ColorConsts.blueColor),
-                                                ],
-                                              );
-                                            },
-                                          ),
+                                                      const Divider(
+                                                          color: ColorConsts
+                                                              .blueColor),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
-                          }));
-                        }
-                        : () => showSnackBar('Please select source language first.'),
+                                  );
+                                }));
+                              }
+                            : () => showSnackBar(
+                                'Please select source language first.'),
                       ),
                     )
                   ],
-                ) ;
+                );
               }),
             ],
           ),
         ),
-        body:
-        Padding(
-          padding: const EdgeInsets.only(left: 10,right: 10),
+        body: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
           child: Column(
             children: [
               Obx(() {
-                return
-                  Flexible(
-                  child:
-                  ListView.builder(
+                return Flexible(
+                  child: ListView.builder(
                     itemCount: controller.chats.value.length,
                     reverse: true,
                     itemBuilder: (context, index) {
@@ -171,10 +213,9 @@ class ChatBotView extends GetView<ChatBotController> {
                   ),
                 );
               }),
-        if(controller.isLoad.value)ThreeDots(),
-
-            Padding(
-                padding: const EdgeInsets.only(bottom: 30, left: 10, right: 10),
+              if (controller.isLoad.value) ThreeDots(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
                 child: Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -185,51 +226,96 @@ class ChatBotView extends GetView<ChatBotController> {
                     child: _buidTextComposer(),
                   ),
                 ),
-              )
-
+              ),
+              Obx(() {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ...List.generate(
+                          controller
+                                  .hints.value?.output?.first.target?.length ??
+                              0, (index) {
+                        final data = controller
+                                .hints.value?.output?.first.target?[index] ??
+                            '';
+                        return GestureDetector(
+                          onTap: () {
+                            String temp = controller.chatController.text;
+                            String output =
+                                temp.replaceAll(RegExp('[A-Za-z]'), '');
+                            controller.chatController.text = '$output $data ';
+                            controller.chatController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                  offset:
+                                      controller.chatController.text.length),
+                            );
+                            controller.hints.value = null;
+                          },
+                          child: Container(
+                              margin: const EdgeInsets.only(
+                                  bottom: 10, right: 10, left: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color:
+                                      ColorConsts.greenColor.withOpacity(0.3)),
+                              child: Text(data)),
+                        );
+                      })
+                    ],
+                  ),
+                );
+              })
             ],
           ),
         ));
   }
 
-
   Widget _buidTextComposer() {
-
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15),
-      child:
-      Row(
+      child: Row(
         children: [
-          Expanded(
-            child: TextField(
+          Expanded(child: Obx(() {
+           return
+             TextField(
+               onTap: (){
+                 if(controller.isloading.value){
+                 return ;
+                 }
+                 else{
+                   showSnackBar(
+                       'Please select source language first.');
+                 }
+               },
+               readOnly: controller.isloading.value?false:true,
               autofocus: false,
               controller: controller.chatController,
               decoration: const InputDecoration.collapsed(
                   hintText: "Hello ChatGPT!",
-                  hintStyle:
-                      const TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
-              onChanged: (v){
+                  hintStyle: const TextStyle(
+                      fontSize: 16, color: ColorConsts.blueColor)),
+              onChanged: (v) {
                 controller.getTransliterationInput();
-                if (!(v[v.length - 1]
-                    .contains(RegExp('[^A-Za-z]'))) &&
-                    (controller.sourceLang.isNotEmpty ??
-                        false)) {
+                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) &&
+                    (controller.sourceLang.isNotEmpty ?? false)) {
                   controller.computeTransliteration();
                 }
-                },
-            ),
-          ),
+              },
+            );
+          })),
           IconButton(
               onPressed: () {
-               // controller. sendMessage();
+                // controller. sendMessage();
               },
               icon: const Icon(Icons.mic, color: ColorConsts.greyColor)),
           IconButton(
               onPressed: () {
-                controller. sendMessage();
+                controller.sendMessage();
                 FocusManager.instance.primaryFocus?.unfocus();
-
-
               },
               icon: Image.asset(AssetConsts.send)),
         ],

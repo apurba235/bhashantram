@@ -19,7 +19,8 @@ class ChatBotController extends GetxController {
   final String reasonToStop = 'stop';
   late String check = "-->";
   RxBool isLoad = RxBool(false);
-  var isSelected="".obs;
+  var isloading = false.obs;
+
 
   Future<void> sendMessage() async {
     isLoad.value = true;
@@ -202,6 +203,7 @@ class ChatBotController extends GetxController {
   @override
   void onInit() async {
     await getLanguages();
+    await getTransliterationModels();
 
     super.onInit();
   }
