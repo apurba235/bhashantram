@@ -3,6 +3,7 @@ import 'package:bhashantram/app/data/network_models/asr_translation_tts_response
 import 'package:bhashantram/app/data/network_models/language_models.dart';
 
 import '../network_models/transliteration_models.dart';
+import '../network_models/transliteration_response.dart';
 
 class BhashiniCalls extends NetworkClient {
   BhashiniCalls._();
@@ -12,6 +13,8 @@ class BhashiniCalls extends NetworkClient {
   static const getModelsURL = 'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/getModelsPipeline';
 
   static const searchModelTransliteration = 'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/search';
+
+  static const computeTransliterationUrl = 'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/compute';
 
   late Map<String, dynamic> computeHeader;
 
@@ -97,5 +100,20 @@ class BhashiniCalls extends NetworkClient {
         },
         showResponse: true);
     return response == null ? null : TransliterationModels.fromJson(response);
+  }
+
+  Future<TransliterationResponse?> computeTransliteration(String modelId, String input) async {
+    Map<String, dynamic>? response = await postApi(
+      BhashiniCalls.computeTransliterationUrl,
+      body: {
+        "modelId": modelId,
+        "task": "transliteration",
+        "input": [
+          {"source": input}
+        ]
+      },
+      showResponse: true,
+    );
+    return response == null ? null : TransliterationResponse.fromJson(response);
   }
 }
