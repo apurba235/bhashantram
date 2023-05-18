@@ -2,12 +2,16 @@ import 'package:bhashantram/app/data/network_client.dart';
 import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
 import 'package:bhashantram/app/data/network_models/language_models.dart';
 
+import '../network_models/transliteration_models.dart';
+
 class BhashiniCalls extends NetworkClient {
   BhashiniCalls._();
 
   static BhashiniCalls instance = BhashiniCalls._();
 
   static const getModelsURL = 'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/getModelsPipeline';
+
+  static const searchModelTransliteration = 'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/search';
 
   late Map<String, dynamic> computeHeader;
 
@@ -17,11 +21,7 @@ class BhashiniCalls extends NetworkClient {
   };
 
   void generateComputeHeader(String key, String value) {
-    computeHeader = {
-      'Accept': '*/*',
-      'User-Agent': ' Thunder Client (https://www.thunderclient.com)',
-      key: value
-    };
+    computeHeader = {'Accept': '*/*', 'User-Agent': ' Thunder Client (https://www.thunderclient.com)', key: value};
   }
 
   Future<LanguageModels?> getLanguages() async {
@@ -42,14 +42,8 @@ class BhashiniCalls extends NetworkClient {
   }
 
   /// only for Asr, Translation and Tts i.e. from audio generate translation in target language and generate speech in target language.
-  Future<AsrTranslationTtsResponse?> computeAsrTranslationTts(
-      String apiUrl,
-      String sourceLang,
-      String targetLang,
-      String audioInput,
-      String asrId,
-      String translationId,
-      String ttsId) async {
+  Future<AsrTranslationTtsResponse?> computeAsrTranslationTts(String apiUrl, String sourceLang, String targetLang,
+      String audioInput, String asrId, String translationId, String ttsId) async {
     Map<String, dynamic>? response = await postApi(
       apiUrl,
       body: {
@@ -66,10 +60,7 @@ class BhashiniCalls extends NetworkClient {
           {
             "taskType": "translation",
             "config": {
-              "language": {
-                "sourceLanguage": sourceLang,
-                "targetLanguage": targetLang
-              },
+              "language": {"sourceLanguage": sourceLang, "targetLanguage": targetLang},
               "serviceId": translationId
             }
           },
@@ -91,9 +82,20 @@ class BhashiniCalls extends NetworkClient {
       header: computeHeader,
       showResponse: false,
     );
-    return response == null
-        ? null
-        : AsrTranslationTtsResponse.fromJson(response);
+    return response == null ? null : AsrTranslationTtsResponse.fromJson(response);
   }
 
+  Future<TransliterationModels?> getTransliterationModels() async {
+    Map<String, dynamic>? response = await postApi(BhashiniCalls.searchModelTransliteration,
+        body: {
+          "task": "transliteration",
+          "sourceLanguage": "",
+          "targetLanguage": "",
+          "domain": "All",
+          "submitter": "All",
+          "userId": null
+        },
+        showResponse: true);
+    return response == null ? null : TransliterationModels.fromJson(response);
+  }
 }
