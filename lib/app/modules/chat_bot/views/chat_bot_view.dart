@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../common/consts/color_consts.dart';
+import '../../../common/widget/bottomsheet/bottomsheet.dart';
+import '../../../common/widget/buttons/language_button.dart';
+import '../../../common/widget/snackbar/custom_snackbar.dart';
 import '../controllers/chat_bot_controller.dart';
 
 class ChatBotView extends GetView<ChatBotController> {
@@ -57,40 +60,93 @@ class ChatBotView extends GetView<ChatBotController> {
                 ],
               ),
               Spacer(),
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                      context: context,
-                      builder: buildBottomSheet,
-                      shape: const RoundedRectangleBorder(
-                        // <-- SEE HERE
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(25.0),
-                        ),
-                      ));
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      //color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: ColorConsts.blackColor)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                     const Text(
-                          "Language",
-                          style: TextStyle(fontSize: 12, color: Colors.black),
-                        ),
-                        const Icon(
-                          Icons.arrow_drop_down,
-                          color: Color(0xff00E173),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              Obx((){
+                return    Row(
+                  children: [
+                    ...List.generate(
+                      1,
+                          (index) => LanguageButton(
+                            languageName: index == 0
+                            ? (controller.getLanguageName(controller.sourceLang.value ?? 'Language'))
+                            : "",
+                        onTapButton: index == 0
+                            ? () {
+                          Get.bottomSheet(isDismissible: false, Obx(() {
+                            return
+                              AppBottomSheet(
+                                onTapSelect: () {
+                                  Get.back();
+                                },
+                                selectButtonColor: (controller.sourceLang.value != null)
+                                    ? ColorConsts.blueColor
+                                    : ColorConsts.blueColor.withOpacity(0.3),
+                                customWidget: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        SizedBox(
+                                          height: Get.height * 0.4,
+                                          child: GridView.builder(
+                                            itemCount: (controller.languages.value?.languages?.length ?? 0),
+                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
+                                            itemBuilder: (cx, index) {
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      controller.sourceLang.value = controller.languages.value
+                                                          ?.languages?[index].sourceLanguage ??
+                                                          '';
+                                                      controller.selectedSourceLangIndex = index;
+                                                      controller.targetLang.value = null;
+                                                      controller.selectedTargetLangIndex = -1;
+                                                    },
+                                                    child: Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 12.0,
+                                                        vertical: 20,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: index == controller.selectedSourceLangIndex
+                                                            ? Colors.grey.withOpacity(0.2)
+                                                            : null,
+                                                        borderRadius: BorderRadius.circular(12),
+                                                      ),
+                                                      child: Text(
+                                                        controller.getLanguageName(
+                                                          controller.languages.value?.languages?[index]
+                                                              .sourceLanguage ??
+                                                              '',
+                                                        ),
+                                                        style: const TextStyle(color: ColorConsts.blueColor),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const Divider(color: ColorConsts.blueColor),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                          }));
+                        }
+                        : () => showSnackBar('Please select source language first.'),
+                      ),
+                    )
+                  ],
+                ) ;
+              }),
             ],
           ),
         ),

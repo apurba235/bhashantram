@@ -203,60 +203,62 @@ class ConverseView extends GetView<ConverseController> {
                                           selectButtonColor: (controller.sourceLang.value != null)
                                               ? ColorConsts.blueColor
                                               : ColorConsts.blueColor.withOpacity(0.3),
-                                          customWidget: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                                              children: [
-                                                SizedBox(
-                                                  height: Get.height * 0.4,
-                                                  child: GridView.builder(
-                                                    itemCount: (controller.languages.value?.languages?.length ?? 0),
-                                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                        crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
-                                                    itemBuilder: (cx, index) {
-                                                      return Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                        children: [
-                                                          GestureDetector(
-                                                            onTap: () {
-                                                              controller.sourceLang.value = controller.languages.value
-                                                                      ?.languages?[index].sourceLanguage ??
-                                                                  '';
-                                                              controller.selectedSourceLangIndex = index;
-                                                              controller.targetLang.value = null;
-                                                              controller.selectedTargetLangIndex = -1;
-                                                            },
-                                                            child: Container(
-                                                              padding: const EdgeInsets.symmetric(
-                                                                horizontal: 12.0,
-                                                                vertical: 20,
-                                                              ),
-                                                              decoration: BoxDecoration(
-                                                                color: index == controller.selectedSourceLangIndex
-                                                                    ? Colors.grey.withOpacity(0.2)
-                                                                    : null,
-                                                                borderRadius: BorderRadius.circular(12),
-                                                              ),
-                                                              child: Text(
-                                                                controller.getLanguageName(
-                                                                  controller.languages.value?.languages?[index]
-                                                                          .sourceLanguage ??
-                                                                      '',
+                                          customWidget: SingleChildScrollView(
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                children: [
+                                                  SizedBox(
+                                                    height: Get.height * 0.4,
+                                                    child: GridView.builder(
+                                                      itemCount: (controller.languages.value?.languages?.length ?? 0),
+                                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                          crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
+                                                      itemBuilder: (cx, index) {
+                                                        return Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                          children: [
+                                                            GestureDetector(
+                                                              onTap: () {
+                                                                controller.sourceLang.value = controller.languages.value
+                                                                        ?.languages?[index].sourceLanguage ??
+                                                                    '';
+                                                                controller.selectedSourceLangIndex = index;
+                                                                controller.targetLang.value = null;
+                                                                controller.selectedTargetLangIndex = -1;
+                                                              },
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(
+                                                                  horizontal: 12.0,
+                                                                  vertical: 20,
                                                                 ),
-                                                                style: const TextStyle(color: ColorConsts.blueColor),
+                                                                decoration: BoxDecoration(
+                                                                  color: index == controller.selectedSourceLangIndex
+                                                                      ? Colors.grey.withOpacity(0.2)
+                                                                      : null,
+                                                                  borderRadius: BorderRadius.circular(12),
+                                                                ),
+                                                                child: Text(
+                                                                  controller.getLanguageName(
+                                                                    controller.languages.value?.languages?[index]
+                                                                            .sourceLanguage ??
+                                                                        '',
+                                                                  ),
+                                                                  style: const TextStyle(color: ColorConsts.blueColor),
+                                                                ),
                                                               ),
                                                             ),
-                                                          ),
-                                                          const Divider(color: ColorConsts.blueColor),
-                                                        ],
-                                                      );
-                                                    },
+                                                            const Divider(color: ColorConsts.blueColor),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         );
@@ -276,73 +278,75 @@ class ConverseView extends GetView<ConverseController> {
                                                   : ColorConsts.blueColor.withOpacity(0.3),
                                               customWidget: Padding(
                                                 padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
-                                                child: Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                  children: [
-                                                    SizedBox(
-                                                      height: Get.height * 0.4,
-                                                      child: GridView.builder(
-                                                        itemCount: (controller
-                                                                .languages
-                                                                .value
-                                                                ?.languages?[controller.selectedSourceLangIndex]
-                                                                .targetLanguageList
-                                                                ?.length ??
-                                                            0),
-                                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                            crossAxisCount: 2,
-                                                            crossAxisSpacing: 10.0,
-                                                            mainAxisExtent: 80),
-                                                        itemBuilder: (cx, index) {
-                                                          return Column(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                            children: [
-                                                              GestureDetector(
-                                                                onTap: () {
-                                                                  controller.targetLang.value = controller
-                                                                          .languages
-                                                                          .value
-                                                                          ?.languages?[
-                                                                              controller.selectedSourceLangIndex]
-                                                                          .targetLanguageList?[index] ??
-                                                                      '';
-                                                                  controller.selectedTargetLangIndex = index;
-                                                                },
-                                                                child: Container(
-                                                                  padding: const EdgeInsets.symmetric(
-                                                                    horizontal: 12.0,
-                                                                    vertical: 20,
-                                                                  ),
-                                                                  decoration: BoxDecoration(
-                                                                    color: index == controller.selectedTargetLangIndex
-                                                                        ? Colors.grey.withOpacity(0.2)
-                                                                        : null,
-                                                                    borderRadius: BorderRadius.circular(12),
-                                                                  ),
-                                                                  child: Text(
-                                                                    controller.getLanguageName(
-                                                                      controller
-                                                                              .languages
-                                                                              .value
-                                                                              ?.languages?[
-                                                                                  controller.selectedSourceLangIndex]
-                                                                              .targetLanguageList?[index] ??
-                                                                          '',
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                    children: [
+                                                      SizedBox(
+                                                        height: Get.height * 0.4,
+                                                        child: GridView.builder(
+                                                          itemCount: (controller
+                                                                  .languages
+                                                                  .value
+                                                                  ?.languages?[controller.selectedSourceLangIndex]
+                                                                  .targetLanguageList
+                                                                  ?.length ??
+                                                              0),
+                                                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                              crossAxisCount: 2,
+                                                              crossAxisSpacing: 10.0,
+                                                              mainAxisExtent: 80),
+                                                          itemBuilder: (cx, index) {
+                                                            return Column(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                              children: [
+                                                                GestureDetector(
+                                                                  onTap: () {
+                                                                    controller.targetLang.value = controller
+                                                                            .languages
+                                                                            .value
+                                                                            ?.languages?[
+                                                                                controller.selectedSourceLangIndex]
+                                                                            .targetLanguageList?[index] ??
+                                                                        '';
+                                                                    controller.selectedTargetLangIndex = index;
+                                                                  },
+                                                                  child: Container(
+                                                                    padding: const EdgeInsets.symmetric(
+                                                                      horizontal: 12.0,
+                                                                      vertical: 20,
                                                                     ),
-                                                                    style:
-                                                                        const TextStyle(color: ColorConsts.blueColor),
+                                                                    decoration: BoxDecoration(
+                                                                      color: index == controller.selectedTargetLangIndex
+                                                                          ? Colors.grey.withOpacity(0.2)
+                                                                          : null,
+                                                                      borderRadius: BorderRadius.circular(12),
+                                                                    ),
+                                                                    child: Text(
+                                                                      controller.getLanguageName(
+                                                                        controller
+                                                                                .languages
+                                                                                .value
+                                                                                ?.languages?[
+                                                                                    controller.selectedSourceLangIndex]
+                                                                                .targetLanguageList?[index] ??
+                                                                            '',
+                                                                      ),
+                                                                      style:
+                                                                          const TextStyle(color: ColorConsts.blueColor),
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                              const Divider(color: ColorConsts.blueColor),
-                                                            ],
-                                                          );
-                                                        },
+                                                                const Divider(color: ColorConsts.blueColor),
+                                                              ],
+                                                            );
+                                                          },
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             );

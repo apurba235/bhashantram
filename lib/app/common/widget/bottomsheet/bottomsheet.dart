@@ -27,7 +27,7 @@ class AppBottomSheet extends StatelessWidget {
             "Select Language",
             style: TextStyle(fontSize: 16, color: ColorConsts.blueColor),
           )),
-          customWidget ??
+       customWidget !=null?   Expanded(child: customWidget!) :
               SizedBox(
                 height: MediaQuery.of(context).size.height / 2.2,
                 child: ListView.builder(
