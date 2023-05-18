@@ -13,8 +13,6 @@ import '../controllers/chat_bot_controller.dart';
 class ChatBotView extends GetView<ChatBotController> {
   ChatBotView({Key? key}) : super(key: key);
 
-  List<String> myList = ["English", "Tamil", "Kanada", "Gujrati", "Hindi"];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +59,8 @@ class ChatBotView extends GetView<ChatBotController> {
               ),
               Spacer(),
               Obx((){
-                return    Row(
+                return
+                  Row(
                   children: [
                     ...List.generate(
                       1,
@@ -75,6 +74,7 @@ class ChatBotView extends GetView<ChatBotController> {
                             return
                               AppBottomSheet(
                                 onTapSelect: () {
+                                  controller.getTransliterationModelId();
                                   Get.back();
                                 },
                                 selectButtonColor: (controller.sourceLang.value != null)
@@ -118,13 +118,16 @@ class ChatBotView extends GetView<ChatBotController> {
                                                             : null,
                                                         borderRadius: BorderRadius.circular(12),
                                                       ),
-                                                      child: Text(
-                                                        controller.getLanguageName(
-                                                          controller.languages.value?.languages?[index]
-                                                              .sourceLanguage ??
-                                                              '',
+                                                      child:
+                                                      Center(
+                                                        child: Text(
+                                                          controller.getLanguageName(
+                                                            controller.languages.value?.languages?[index]
+                                                                .sourceLanguage ??
+                                                                '',
+                                                          ),
+                                                          style: const TextStyle(color: ColorConsts.blueColor),
                                                         ),
-                                                        style: const TextStyle(color: ColorConsts.blueColor),
                                                       ),
                                                     ),
                                                   ),
@@ -187,61 +190,6 @@ class ChatBotView extends GetView<ChatBotController> {
         ));
   }
 
-  Widget buildBottomSheet(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 20,
-        ),
-        Center(
-            child: Text(
-          "Select Language",
-          style: TextStyle(fontSize: 16, color: ColorConsts.blueColor),
-        )),
-        Container(
-          height: MediaQuery.of(context).size.height / 2.2,
-          child: ListView.builder(
-            padding: EdgeInsets.all(40),
-            itemBuilder: (
-              context,
-              index,
-            ) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text(myList[index],
-                      style: TextStyle(
-                          fontSize: 12, color: ColorConsts.blueColor)),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Divider(color: ColorConsts.blueColor)
-                ],
-              );
-            },
-            itemCount: myList.length,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 40, right: 40),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.blue.shade100,
-            ),
-            height: 40,
-            child: Center(
-                child: Text("Select",
-                    style: TextStyle(
-                        fontSize: 20, color: ColorConsts.whiteColor))),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buidTextComposer() {
     return Padding(

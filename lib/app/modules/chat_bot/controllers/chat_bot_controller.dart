@@ -6,6 +6,8 @@ import '../../../common/consts/app_url.dart';
 import '../../../common/utils/language_code.dart';
 import '../../../data/api_calls/bhashini_calls.dart';
 import '../../../data/network_models/language_models.dart';
+import '../../../data/network_models/transliteration_models.dart';
+import '../../../data/network_models/transliteration_response.dart';
 import '../views/chat_message.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,6 +19,7 @@ class ChatBotController extends GetxController {
   final String reasonToStop = 'stop';
   late String check = "-->";
   RxBool isLoad = RxBool(false);
+
   Future<void> sendMessage() async {
     isLoad.value = true;
     ChatMessage message = ChatMessage(text: chatController.text, sender: "user");
@@ -137,6 +140,50 @@ class ChatBotController extends GetxController {
 
   String getLanguageName(String code) => LanguageCode.languageCode.entries.firstWhere((element) => element.key == code, orElse: () => MapEntry('', code)).value;
   //end language controoler code
+
+
+
+
+
+  /// Bhashini Api integration
+
+  Rxn<TransliterationModels?> transliterationModels = Rxn<TransliterationModels>();
+  String transliterationModelsId="";
+
+  Future<void> getTransliterationModels() async {
+    TransliterationModels? response = await BhashiniCalls.instance.getTransliterationModels();
+    if (response != null) {
+      transliterationModels.value = response;
+    }
+  }
+
+  // Future<void> computeTransliteration() async {
+  //   TransliterationResponse? response =
+  //   await BhashiniCalls.instance.computeTransliteration(transliterationModelsId, transliterationInput);
+  //   // if (response != null) {
+  //   //   hints.value = response;
+  //   // }
+  //   // // else {
+  //   // //   await showSnackBar();
+  //   // // }
+  //   // hints.value?.output?.first.target?.forEach((element) {
+  //   //   log(element, name: 'Hints');
+  //   // });
+  // }
+
+  void getTransliterationModelId() {
+    transliterationModelsId = transliterationModels.value?.data
+        ?.firstWhere(
+          (element) => ((element.languages?.first.sourceLanguage == 'en') &&
+          (element.languages?.first.targetLanguage == sourceLang.value)),
+      orElse: () => Data(modelId: ''),
+    )
+        .modelId ??
+        '';
+    log(transliterationModelsId, name: 'Transliteration Model Id');
+  }
+
+
 
   @override
   void onInit() async {
