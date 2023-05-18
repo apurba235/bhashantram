@@ -51,18 +51,69 @@ class ConverseView extends GetView<ConverseController> {
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 30.0),
                                     child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          controller.getLanguageName(controller.sourceLang.value ?? 'Source'),
-                                          style: const TextStyle(color: ColorConsts.blueColor),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              controller.getLanguageName(controller.sourceLang.value ?? 'Source'),
+                                              style: const TextStyle(color: ColorConsts.blueColor),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              controller.input.value ?? 'Press mic to begin conversion',
+                                              style: const TextStyle(fontSize: 18, color: ColorConsts.blueColor),
+                                            ),
+                                            const SizedBox(height: 15),
+                                          ],
                                         ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          controller.input.value ?? 'Press mic to begin conversion',
-                                          style: const TextStyle(fontSize: 18, color: ColorConsts.blueColor),
+                                        Row(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    if (controller.inputAudioPath.isNotEmpty) {
+                                                      await Share.shareXFiles(
+                                                        [XFile(controller.inputAudioPath)],
+                                                        sharePositionOrigin:
+                                                        Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: Image.asset(AssetConsts.share),
+                                                ),
+                                                const SizedBox(width: 15),
+                                                GestureDetector(
+                                                  onTap: (controller.input.value?.isNotEmpty ?? false)
+                                                      ? () async {
+                                                    await Clipboard.setData(
+                                                      ClipboardData(text: controller.input.value ?? ''),
+                                                    );
+                                                    showSnackBar('Copied to clipboard');
+                                                  }
+                                                      : null,
+                                                  child: Image.asset(AssetConsts.copy),
+                                                ),
+                                              ],
+                                            ),
+                                            const Spacer(),
+                                            Obx(() {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  if (controller.inputAudioPath.isNotEmpty) {
+                                                    controller.playRecordedAudio(controller.inputAudioPath, true);
+                                                  }
+                                                },
+                                                child: controller.inputAudioPlay.value
+                                                    ? const Icon(Icons.pause_circle_outline_outlined)
+                                                    : Image.asset(AssetConsts.speaker),
+                                              );
+                                            }),
+                                          ],
                                         ),
-                                        const SizedBox(height: 15),
                                       ],
                                     ),
                                   ),
@@ -94,16 +145,15 @@ class ConverseView extends GetView<ConverseController> {
                                           ],
                                         );
                                       }),
-                                      const SizedBox(height: 50),
                                       Row(
                                         children: [
                                           Row(
                                             children: [
                                               GestureDetector(
                                                 onTap: () async {
-                                                  if (controller.ttsFilePath.isNotEmpty) {
+                                                  if (controller.outputAudioPath.isNotEmpty) {
                                                     await Share.shareXFiles(
-                                                      [XFile(controller.ttsFilePath)],
+                                                      [XFile(controller.outputAudioPath)],
                                                       sharePositionOrigin:
                                                           Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
                                                     );
@@ -129,11 +179,11 @@ class ConverseView extends GetView<ConverseController> {
                                           Obx(() {
                                             return GestureDetector(
                                               onTap: () {
-                                                if (controller.ttsFilePath.isNotEmpty) {
-                                                  controller.playRecordedAudio(controller.ttsFilePath);
+                                                if (controller.outputAudioPath.isNotEmpty) {
+                                                  controller.playRecordedAudio(controller.outputAudioPath, false);
                                                 }
                                               },
-                                              child: controller.playingAudio.value
+                                              child: controller.outputAudioPlay.value
                                                   ? const Icon(Icons.pause_circle_outline_outlined)
                                                   : Image.asset(AssetConsts.speaker),
                                             );

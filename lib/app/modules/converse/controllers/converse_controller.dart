@@ -29,6 +29,8 @@ class ConverseController extends GetxController {
   RxBool recordingOngoing = RxBool(false);
   String encodedAudio = '';
   String ttsFilePath = '';
+  String inputAudioPath = '';
+  String outputAudioPath = '';
   String computeURL = '';
   String computeApiKey = '';
   String computeApiValue = '';
@@ -41,8 +43,10 @@ class ConverseController extends GetxController {
   RxnString output = RxnString();
   bool fromTarget = false;
   final PlayerController _playerController = PlayerController();
-  String recordedTargetAudio = '';
-  RxBool playingAudio = RxBool(false);
+  String recordedAudioPath = '';
+  // RxBool playingAudio = RxBool(false);
+  RxBool inputAudioPlay = RxBool(false);
+  RxBool outputAudioPlay = RxBool(false);
 
   Future<void> workingData() async {
     if (fromTarget) {
@@ -97,9 +101,6 @@ class ConverseController extends GetxController {
     if (response != null) {
       languages.value = response;
     }
-    // else {
-    //   await showSnackBar();
-    // }
     languageLoader.value = false;
   }
 
@@ -109,8 +110,6 @@ class ConverseController extends GetxController {
         computeURL, workingSource, workingTarget, encodedAudio, asrServiceId, translationId, ttsId);
     if (response != null) {
       asrTranslationTts.value = response;
-    } else {
-      // await showSnackBar();
     }
     languageLoader.value = false;
     if (fromTarget) {
@@ -126,8 +125,16 @@ class ConverseController extends GetxController {
               ?.first
               .source ??
           '';
-      ttsFilePath = _voiceRecorder.getAudioFilePath() ?? '';
-      log(ttsFilePath);
+      String generatedAudio = asrTranslationTts.value?.pipelineResponse
+          ?.firstWhere((element) => element.taskType == 'tts')
+          .audio
+          ?.first
+          .audioContent ??
+          '';
+      await writeTTsAudio(generatedAudio, true);
+      outputAudioPath = recordedAudioPath;
+      log(inputAudioPath, name: 'input');
+      playRecordedAudio(inputAudioPath, true);
     } else {
       output.value = asrTranslationTts.value?.pipelineResponse
               ?.firstWhere((element) => element.taskType == 'translation')
@@ -141,28 +148,34 @@ class ConverseController extends GetxController {
               ?.first
               .source ??
           '';
-    }
-    String generatedAudio = asrTranslationTts.value?.pipelineResponse
-            ?.firstWhere((element) => element.taskType == 'tts')
-            .audio
-            ?.first
-            .audioContent ??
-        '';
-    if (!fromTarget) {
-      writeTTsAudio(generatedAudio);
+      String generatedAudio = asrTranslationTts.value?.pipelineResponse
+          ?.firstWhere((element) => element.taskType == 'tts')
+          .audio
+          ?.first
+          .audioContent ??
+          '';
+      await writeTTsAudio(generatedAudio, false);
+      inputAudioPath = recordedAudioPath;
+      playRecordedAudio(outputAudioPath, false);
     }
   }
 
-  Future<void> writeTTsAudio(String audioContent) async {
+  Future<void> writeTTsAudio(String audioContent, bool fromTarget) async {
     Uint8List? fileAsBytes = base64Decode(audioContent);
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String recordingPath = '${appDocDir.path}/recordings';
     if (!await Directory(recordingPath).exists()) {
       Directory(recordingPath).create();
     }
-    ttsFilePath = '$recordingPath/TTSAudio${DateTime.now().millisecondsSinceEpoch}.wav';
-    File? ttsAudioFile = File(ttsFilePath);
-    await ttsAudioFile.writeAsBytes(fileAsBytes);
+    if(fromTarget){
+      inputAudioPath = '$recordingPath/TTSAudio${DateTime.now().millisecondsSinceEpoch}.wav';
+      File? ttsAudioFile = File(inputAudioPath);
+      await ttsAudioFile.writeAsBytes(fileAsBytes);
+    }else{
+      outputAudioPath = '$recordingPath/TTSAudio${DateTime.now().millisecondsSinceEpoch}.wav';
+      File? ttsAudioFile = File(outputAudioPath);
+      await ttsAudioFile.writeAsBytes(fileAsBytes);
+    }
   }
 
   String getLanguageName(String code) => LanguageCode.languageCode.entries
@@ -182,10 +195,17 @@ class ConverseController extends GetxController {
   Future<void> stopRecordingAndGetResult() async {
     recordingOngoing.value = false;
     encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
+    recordedAudioPath = _voiceRecorder.getAudioFilePath()??'';
   }
 
-  Future<void> playRecordedAudio(String filePath) async {
-    playingAudio.value = true;
+  Future<void> playRecordedAudio(String filePath, bool inputAudio) async {
+    log(filePath, name: 'AudioFile');
+    if(inputAudio){
+      inputAudioPlay.value = true;
+    }else{
+      outputAudioPlay.value = true;
+    }
+    // playingAudio.value = true;
     if (_playerController.playerState == PlayerState.playing || _playerController.playerState == PlayerState.paused) {
       await _playerController.stopPlayer();
     }
@@ -195,7 +215,12 @@ class ConverseController extends GetxController {
     );
     await _playerController.startPlayer(finishMode: FinishMode.pause);
     await Future.delayed(Duration(milliseconds: _playerController.maxDuration));
-    playingAudio.value = false;
+    // playingAudio.value = false;
+    if(inputAudio){
+      inputAudioPlay.value = false;
+    }else{
+      outputAudioPlay.value = false;
+    }
   }
 
   @override
