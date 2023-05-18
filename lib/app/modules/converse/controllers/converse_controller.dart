@@ -4,14 +4,15 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:bhashantram/app/common/utils/language_code.dart';
-import 'package:bhashantram/app/common/utils/permission_handler.dart';
-import 'package:bhashantram/app/common/utils/voice_recorder.dart';
-import 'package:bhashantram/app/data/api_calls/bhashini_calls.dart';
-import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
-import 'package:bhashantram/app/data/network_models/language_models.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../../common/utils/language_code.dart';
+import '../../../common/utils/permission_handler.dart';
+import '../../../common/utils/voice_recorder.dart';
+import '../../../data/api_calls/bhashini_calls.dart';
+import '../../../data/network_models/asr_translation_tts_response.dart';
+import '../../../data/network_models/language_models.dart';
 
 class ConverseController extends GetxController {
   RxBool languageLoader = RxBool(false);
