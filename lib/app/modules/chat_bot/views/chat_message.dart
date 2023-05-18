@@ -37,8 +37,18 @@ class ChatMessage extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child:
                          // sender=='user'?
-                          Text(text,style: TextStyle(fontSize: 12,fontFamily: 'Poppins',
-                          color: sender=='user'?ColorConsts.whiteColor:ColorConsts.blackColor))
+                          Column(
+                            children: [
+                              Text(text,style: TextStyle(fontSize: 12,fontFamily: 'Poppins',
+                              color: sender=='user'?ColorConsts.whiteColor:ColorConsts.blackColor)),
+                              sender=='user'?SizedBox():Align(
+                                alignment: Alignment.bottomRight,
+                                  child: Container(
+                                    margin: EdgeInsets.only(top: 10,right: 10),
+                                      width: 25,
+                                      child: Image.asset(AssetConsts.speaker,fit: BoxFit.cover,))),
+                            ],
+                          )
                         //       :
                         //
                         // AnimatedTextKit(

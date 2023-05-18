@@ -113,7 +113,7 @@ class ChatBotView extends GetView<ChatBotController> {
                   ),
                 );
               }),
-            if(controller.isLoad.value)ThreeDots(),
+        if(controller.isLoad.value)ThreeDots(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 30, left: 10, right: 10),
                 child: Card(
