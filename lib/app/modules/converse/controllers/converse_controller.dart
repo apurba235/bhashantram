@@ -41,6 +41,7 @@ class ConverseController extends GetxController {
   bool fromTarget = false;
   final PlayerController _playerController = PlayerController();
   String recordedTargetAudio = '';
+  RxBool playingAudio = RxBool(false);
 
   Future<void> workingData() async {
     if (fromTarget) {
@@ -183,7 +184,7 @@ class ConverseController extends GetxController {
   }
 
   Future<void> playRecordedAudio(String filePath) async {
-    // playTTs.value = true;
+    playingAudio.value = true;
     if (_playerController.playerState == PlayerState.playing || _playerController.playerState == PlayerState.paused) {
       await _playerController.stopPlayer();
     }
@@ -193,7 +194,7 @@ class ConverseController extends GetxController {
     );
     await _playerController.startPlayer(finishMode: FinishMode.pause);
     await Future.delayed(Duration(milliseconds: _playerController.maxDuration));
-    // playTTs.value = false;
+    playingAudio.value = false;
   }
 
   @override

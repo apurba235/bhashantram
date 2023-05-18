@@ -100,15 +100,15 @@ class ConverseView extends GetView<ConverseController> {
                                           Row(
                                             children: [
                                               GestureDetector(
-                                                onTap: controller.ttsFilePath.isNotEmpty
-                                                    ? () async {
-                                                        await Share.shareXFiles(
-                                                          [XFile(controller.ttsFilePath)],
-                                                          sharePositionOrigin:
-                                                              Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
-                                                        );
-                                                      }
-                                                    : null,
+                                                onTap: () async {
+                                                  if (controller.ttsFilePath.isNotEmpty) {
+                                                    await Share.shareXFiles(
+                                                      [XFile(controller.ttsFilePath)],
+                                                      sharePositionOrigin:
+                                                          Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
+                                                    );
+                                                  }
+                                                },
                                                 child: Image.asset(AssetConsts.share),
                                               ),
                                               const SizedBox(width: 15),
@@ -126,14 +126,18 @@ class ConverseView extends GetView<ConverseController> {
                                             ],
                                           ),
                                           const Spacer(),
-                                          GestureDetector(
-                                            onTap: () {
-                                              if (controller.ttsFilePath.isNotEmpty) {
-                                                controller.playRecordedAudio(controller.ttsFilePath);
-                                              }
-                                            },
-                                            child: Image.asset(AssetConsts.speaker),
-                                          ),
+                                          Obx(() {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                if (controller.ttsFilePath.isNotEmpty) {
+                                                  controller.playRecordedAudio(controller.ttsFilePath);
+                                                }
+                                              },
+                                              child: controller.playingAudio.value
+                                                  ? const Icon(Icons.pause_circle_outline_outlined)
+                                                  : Image.asset(AssetConsts.speaker),
+                                            );
+                                          }),
                                         ],
                                       ),
                                     ],
