@@ -35,6 +35,7 @@ class ChatMessage extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child:
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(text,style: TextStyle(fontSize: 12,fontFamily: 'Poppins',
                               color: sender=='user'?ColorConsts.whiteColor:ColorConsts.blackColor)),
