@@ -2,9 +2,11 @@ import 'package:bhashantram/app/data/network_client.dart';
 import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
 import 'package:bhashantram/app/data/network_models/language_models.dart';
 
+import '../network_models/asr_translation_response.dart';
 import '../network_models/translation_models.dart';
 import '../network_models/transliteration_models.dart';
 import '../network_models/transliteration_response.dart';
+import '../network_models/tts_models.dart';
 
 class BhashiniCalls extends NetworkClient {
   BhashiniCalls._();
@@ -43,6 +45,49 @@ class BhashiniCalls extends NetworkClient {
       showResponse: false,
     );
     return (response == null) ? null : LanguageModels.fromJson(response);
+  }
+
+  /// only for Asr and Translation i.e. from audio generate translation in target language.
+  Future<AsrTranslationResponse?> computeAsrTranslation(
+      String apiUrl,
+      String sourceLang,
+      String targetLang,
+      String audioInput,
+      String asrId,
+      String translationId) async {
+    Map<String, dynamic>? response = await postApi(
+      apiUrl,
+      body: {
+        "pipelineTasks": [
+          {
+            "taskType": "asr",
+            "config": {
+              "language": {"sourceLanguage": sourceLang},
+              "serviceId": asrId,
+              "audioFormat": "wav",
+              "samplingRate": 16000
+            }
+          },
+          {
+            "taskType": "translation",
+            "config": {
+              "language": {
+                "sourceLanguage": sourceLang,
+                "targetLanguage": targetLang
+              },
+              "serviceId": translationId
+            }
+          }
+        ],
+        "inputData": {
+          "audio": [
+            {"audioContent": audioInput}
+          ]
+        }
+      },
+      header: computeHeader, showResponse: true,
+    );
+    return response == null ? null : AsrTranslationResponse.fromJson(response);
   }
 
   /// only for Asr, Translation and Tts i.e. from audio generate translation in target language and generate speech in target language.
@@ -120,11 +165,7 @@ class BhashiniCalls extends NetworkClient {
 
   /// only for Translation i.e. giving Text input and getting translated text.
   Future<TranslationResponse?> computeTranslation(
-      String apiUrl,
-      String sourceLang,
-      String targetLang,
-      String input,
-      String translationId) async {
+      String apiUrl, String sourceLang, String targetLang, String input, String translationId) async {
     Map<String, dynamic>? response = await postApi(
       apiUrl,
       body: {
@@ -132,10 +173,7 @@ class BhashiniCalls extends NetworkClient {
           {
             "taskType": "translation",
             "config": {
-              "language": {
-                "sourceLanguage": sourceLang,
-                "targetLanguage": targetLang
-              },
+              "language": {"sourceLanguage": sourceLang, "targetLanguage": targetLang},
               "serviceId": translationId
             }
           }
@@ -146,8 +184,36 @@ class BhashiniCalls extends NetworkClient {
           ]
         }
       },
-      header: computeHeader, showResponse: true,
+      header: computeHeader,
+      showResponse: true,
     );
     return response == null ? null : TranslationResponse.fromJson(response);
+  }
+
+  /// only for Tts i.e. from translated Text output generate speech in target language.
+  Future<TtsResponse?> generateTTS(String apiUrl, String sourceLang, String input, String ttsId) async {
+    Map<String, dynamic>? response = await postApi(
+      apiUrl,
+      body: {
+        "pipelineTasks": [
+          {
+            "taskType": "tts",
+            "config": {
+              "language": {"sourceLanguage": sourceLang},
+              "serviceId": ttsId,
+              "gender": "female"
+            }
+          }
+        ],
+        "inputData": {
+          "input": [
+            {"source": input}
+          ]
+        }
+      },
+      header: computeHeader,
+      showResponse: true,
+    );
+    return response == null ? null : TtsResponse.fromJson(response);
   }
 }
