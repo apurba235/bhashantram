@@ -39,8 +39,7 @@ class ChatBotView extends GetView<ChatBotController> {
                 children: [
                   const Text(
                     "ChatGPT",
-                    style:
-                        TextStyle(fontSize: 16, color: ColorConsts.blackColor),
+                    style: TextStyle(fontSize: 16, color: ColorConsts.blackColor),
                   ),
                   Row(
                     children: [
@@ -52,9 +51,7 @@ class ChatBotView extends GetView<ChatBotController> {
                       const SizedBox(
                         width: 5,
                       ),
-                      const Text("Online",
-                          style: TextStyle(
-                              fontSize: 12, color: ColorConsts.greenColor)),
+                      const Text("Online", style: TextStyle(fontSize: 12, color: ColorConsts.greenColor)),
                     ],
                   ),
                 ],
@@ -66,10 +63,8 @@ class ChatBotView extends GetView<ChatBotController> {
                     ...List.generate(
                       1,
                       (index) => LanguageButton(
-                        languageName: index == 0
-                            ? (controller.getLanguageName(
-                                controller.sourceLang.value ?? 'Language'))
-                            : "",
+                        languageName:
+                            index == 0 ? (controller.getLanguageName(controller.sourceLang.value ?? 'Language')) : "",
                         onTapButton: index == 0
                             ? () {
                                 Get.bottomSheet(isDismissible: false, Obx(() {
@@ -78,105 +73,63 @@ class ChatBotView extends GetView<ChatBotController> {
                                       controller.getTransliterationModelId();
                                       Get.back();
                                     },
-                                    selectButtonColor:
-                                        (controller.sourceLang.value != null)
-                                            ? ColorConsts.blueColor
-                                            : ColorConsts.blueColor
-                                                .withOpacity(0.3),
+                                    selectButtonColor: (controller.sourceLang.value != null)
+                                        ? ColorConsts.blueColor
+                                        : ColorConsts.blueColor.withOpacity(0.3),
                                     customWidget: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 25.0, vertical: 20),
+                                      padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
                                       child: SingleChildScrollView(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
                                             SizedBox(
                                               height: Get.height * 0.4,
                                               child: GridView.builder(
-                                                itemCount: (controller
-                                                        .languages
-                                                        .value
-                                                        ?.languages
-                                                        ?.length ??
-                                                    0),
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                        crossAxisCount: 2,
-                                                        crossAxisSpacing: 10.0,
-                                                        mainAxisExtent: 80),
+                                                itemCount: (controller.languages.value?.languages?.length ?? 0),
+                                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
                                                 itemBuilder: (cx, index) {
                                                   return Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .stretch,
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
                                                     children: [
                                                       GestureDetector(
                                                         onTap: () {
-                                                          controller.sourceLang
-                                                              .value = controller
-                                                                  .languages
-                                                                  .value
-                                                                  ?.languages?[
-                                                                      index]
-                                                                  .sourceLanguage ??
+                                                          controller.sourceLang.value = controller
+                                                                  .languages.value?.languages?[index].sourceLanguage ??
                                                               '';
-                                                          controller
-                                                                  .selectedSourceLangIndex =
-                                                              index;
-                                                          controller.targetLang
-                                                              .value = null;
-                                                          controller
-                                                              .selectedTargetLangIndex = -1;
-                                                          controller.isloading
-                                                              .value = true;
+                                                          controller.getTranslationId();
+
+                                                          controller.selectedSourceLangIndex = index;
+                                                          controller.targetLang.value = null;
+                                                          controller.selectedTargetLangIndex = -1;
+                                                          controller.isloading.value = true;
                                                         },
                                                         child: Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
+                                                          padding: const EdgeInsets.symmetric(
                                                             horizontal: 12.0,
                                                             vertical: 20,
                                                           ),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: index ==
-                                                                    controller
-                                                                        .selectedSourceLangIndex
-                                                                ? Colors.grey
-                                                                    .withOpacity(
-                                                                        0.2)
+                                                          decoration: BoxDecoration(
+                                                            color: index == controller.selectedSourceLangIndex
+                                                                ? Colors.grey.withOpacity(0.2)
                                                                 : null,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        12),
+                                                            borderRadius: BorderRadius.circular(12),
                                                           ),
                                                           child: Center(
                                                             child: Text(
-                                                              controller
-                                                                  .getLanguageName(
-                                                                controller
-                                                                        .languages
-                                                                        .value
-                                                                        ?.languages?[
-                                                                            index]
+                                                              controller.getLanguageName(
+                                                                controller.languages.value?.languages?[index]
                                                                         .sourceLanguage ??
                                                                     '',
                                                               ),
-                                                              style: const TextStyle(
-                                                                  color: ColorConsts
-                                                                      .blueColor),
+                                                              style: const TextStyle(color: ColorConsts.blueColor),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
-                                                      const Divider(
-                                                          color: ColorConsts
-                                                              .blueColor),
+                                                      const Divider(color: ColorConsts.blueColor),
                                                     ],
                                                   );
                                                 },
@@ -189,8 +142,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                   );
                                 }));
                               }
-                            : () => showSnackBar(
-                                'Please select source language first.'),
+                            : () => showSnackBar('Please select source language first.'),
                       ),
                     )
                   ],
@@ -233,36 +185,24 @@ class ChatBotView extends GetView<ChatBotController> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      ...List.generate(
-                          controller
-                                  .hints.value?.output?.first.target?.length ??
-                              0, (index) {
-                        final data = controller
-                                .hints.value?.output?.first.target?[index] ??
-                            '';
+                      ...List.generate(controller.hints.value?.output?.first.target?.length ?? 0, (index) {
+                        final data = controller.hints.value?.output?.first.target?[index] ?? '';
                         return GestureDetector(
                           onTap: () {
                             String temp = controller.chatController.text;
-                            String output =
-                                temp.replaceAll(RegExp('[A-Za-z]'), '');
+                            String output = temp.replaceAll(RegExp('[A-Za-z]'), '');
                             controller.chatController.text = '$output $data ';
-                            controller.chatController.selection =
-                                TextSelection.fromPosition(
-                              TextPosition(
-                                  offset:
-                                      controller.chatController.text.length),
+                            controller.chatController.selection = TextSelection.fromPosition(
+                              TextPosition(offset: controller.chatController.text.length),
                             );
                             controller.hints.value = null;
                           },
                           child: Container(
-                              margin: const EdgeInsets.only(
-                                  bottom: 10, right: 10, left: 10),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
+                              margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10),
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color:
-                                      ColorConsts.greenColor.withOpacity(0.3)),
+                                  color: ColorConsts.greenColor.withOpacity(0.3)),
                               child: Text(data)),
                         );
                       })
@@ -293,53 +233,47 @@ class ChatBotView extends GetView<ChatBotController> {
               autofocus: false,
               controller: controller.chatController,
               decoration: const InputDecoration.collapsed(
-                  hintText: "Hello ChatGPT!",
-                  hintStyle: const TextStyle(
-                      fontSize: 16, color: ColorConsts.blueColor)),
+                  hintText: "Hello ChatGPT!", hintStyle: const TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
               onChanged: (v) {
                 controller.getTransliterationInput();
-                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) &&
-                    (controller.sourceLang.isNotEmpty ?? false)) {
+                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) && (controller.sourceLang.isNotEmpty ?? false)) {
                   controller.computeTransliteration();
                 }
               },
             );
           })),
-          Obx(() {
-            return Stack(
-              children: [
-                if (controller.recordingOngoing.value) Lottie.asset(AssetConsts.recording, repeat: true),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ...List.generate(
-                      1,
-                          (index) => MicroPhone(
-                        onTapMic: (ongoing) {
-                          if
-                          (controller.sourceLang.isNotEmpty ?? false) {
-                            controller.startRecording();
-                          } else {
-                            showSnackBar('Please select Source language.');
-                          }
-                        },
-                        onTapRemove:
-                            (controller.sourceLang.isNotEmpty ?? false)
-                            ? (te) async {
-                          controller.fromTarget = index == 0 ? false : true;
-                          await controller.stopRecordingAndGetResult();
-                          await controller.workingData();
-                          controller.computeAsrTranslationTts();
-                        }
-                            : null,
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            );
-          }),
-
+          // Obx(() {
+          //   return Stack(
+          //     children: [
+          //       if (controller.recordingOngoing.value) Lottie.asset(AssetConsts.recording, repeat: true),
+          //       Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //         children: [
+          //           ...List.generate(
+          //             1,
+          //             (index) => MicroPhone(
+          //               onTapMic: (ongoing) {
+          //                 if (controller.sourceLang.isNotEmpty ?? false) {
+          //                   controller.startRecording();
+          //                 } else {
+          //                   showSnackBar('Please select Source language.');
+          //                 }
+          //               },
+          //               onTapRemove: (controller.sourceLang.isNotEmpty ?? false)
+          //                   ? (te) async {
+          //                       controller.fromTarget = index == 0 ? false : true;
+          //                       await controller.stopRecordingAndGetResult();
+          //                       await controller.workingData();
+          //                       controller.computeAsrTranslationTts();
+          //                     }
+          //                   : null,
+          //             ),
+          //           )
+          //         ],
+          //       ),
+          //     ],
+          //   );
+          // }),
           IconButton(
               onPressed: () {
                 controller.sendMessage();
