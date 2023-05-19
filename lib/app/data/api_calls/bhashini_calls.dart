@@ -2,6 +2,7 @@ import 'package:bhashantram/app/data/network_client.dart';
 import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
 import 'package:bhashantram/app/data/network_models/language_models.dart';
 
+import '../network_models/translation_models.dart';
 import '../network_models/transliteration_models.dart';
 import '../network_models/transliteration_response.dart';
 
@@ -115,5 +116,38 @@ class BhashiniCalls extends NetworkClient {
       showResponse: true,
     );
     return response == null ? null : TransliterationResponse.fromJson(response);
+  }
+
+  /// only for Translation i.e. giving Text input and getting translated text.
+  Future<TranslationResponse?> computeTranslation(
+      String apiUrl,
+      String sourceLang,
+      String targetLang,
+      String input,
+      String translationId) async {
+    Map<String, dynamic>? response = await postApi(
+      apiUrl,
+      body: {
+        "pipelineTasks": [
+          {
+            "taskType": "translation",
+            "config": {
+              "language": {
+                "sourceLanguage": sourceLang,
+                "targetLanguage": targetLang
+              },
+              "serviceId": translationId
+            }
+          }
+        ],
+        "inputData": {
+          "input": [
+            {"source": input}
+          ]
+        }
+      },
+      header: computeHeader, showResponse: true,
+    );
+    return response == null ? null : TranslationResponse.fromJson(response);
   }
 }

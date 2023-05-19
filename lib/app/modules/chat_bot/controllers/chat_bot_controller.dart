@@ -6,6 +6,7 @@ import '../../../common/consts/app_url.dart';
 import '../../../common/utils/language_code.dart';
 import '../../../data/api_calls/bhashini_calls.dart';
 import '../../../data/network_models/language_models.dart';
+import '../../../data/network_models/translation_models.dart';
 import '../../../data/network_models/transliteration_models.dart';
 import '../../../data/network_models/transliteration_response.dart';
 import '../views/chat_message.dart';
@@ -153,6 +154,30 @@ class ChatBotController extends GetxController {
   String transliterationModelsId="";
   String transliterationInput="";
   Rxn<TransliterationResponse?> hints = Rxn<TransliterationResponse>();
+  Rxn<TranslationResponse?> translatedResponse = Rxn<TranslationResponse>();
+  String botInput = '';
+  String computeTranslationUrl = '';
+  String computeApiKey = '';
+  String computeApiValue = '';
+  String translationInput = '';
+  String translationId = '';
+
+  void computeApiData() {
+    computeTranslationUrl = languages.value?.pipelineInferenceAPIEndPoint?.callbackUrl ?? '';
+    computeApiKey = languages.value?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.name ?? '';
+    computeApiValue = languages.value?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value ?? '';
+    BhashiniCalls.instance.generateComputeHeader(computeApiKey, computeApiValue);
+  }
+
+  void getTranslationId(){
+    translationId = languages.value?.pipelineResponseConfig
+        ?.firstWhere((element) => element.taskType == 'translation')
+        .config
+        ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains(sourceLang) ?? false) &&
+        (e.language?.targetLanguage?.contains('en') ?? false)))
+        .serviceId ??
+        "";
+  }
 
   Future<void> getTransliterationModels() async {
     TransliterationModels? response = await BhashiniCalls.instance.getTransliterationModels();
@@ -167,9 +192,6 @@ class ChatBotController extends GetxController {
     if (response != null) {
       hints.value = response;
     }
-    // else {
-    //   await showSnackBar();
-    // }
     hints.value?.output?.first.target?.forEach((element) {
       log(element, name: 'Hints');
     });
@@ -198,13 +220,22 @@ class ChatBotController extends GetxController {
     transliterationInput = chatController.text.substring(index);
   }
 
+  Future<void> computeTranslation() async {
+    TranslationResponse? response = await BhashiniCalls.instance
+        .computeTranslation(computeTranslationUrl, sourceLang.value ?? '', 'en', translationInput, translationId);
+    if (response != null) {
+      translatedResponse.value = response;
+    }
+    botInput = translatedResponse.value?.pipelineResponse?.first.output?.first.target ?? '';
+  }
+
 
 
   @override
   void onInit() async {
     await getLanguages();
+    computeApiData();
     await getTransliterationModels();
-
     super.onInit();
   }
 
