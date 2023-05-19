@@ -3,10 +3,12 @@ import 'package:bhashantram/app/modules/chat_bot/views/response_animation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../common/consts/color_consts.dart';
 import '../../../common/widget/bottomsheet/bottomsheet.dart';
 import '../../../common/widget/buttons/language_button.dart';
+import '../../../common/widget/component/microphone.dart';
 import '../../../common/widget/snackbar/custom_snackbar.dart';
 import '../controllers/chat_bot_controller.dart';
 
@@ -130,8 +132,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                                           controller
                                                               .selectedTargetLangIndex = -1;
                                                           controller.isloading
-                                                              .value =true;
-
+                                                              .value = true;
                                                         },
                                                         child: Container(
                                                           padding:
@@ -280,18 +281,15 @@ class ChatBotView extends GetView<ChatBotController> {
       child: Row(
         children: [
           Expanded(child: Obx(() {
-           return
-             TextField(
-               onTap: (){
-                 if(controller.isloading.value){
-                 return ;
-                 }
-                 else{
-                   showSnackBar(
-                       'Please select source language first.');
-                 }
-               },
-               readOnly: controller.isloading.value?false:true,
+            return TextField(
+              onTap: () {
+                if (controller.isloading.value) {
+                  return;
+                } else {
+                  showSnackBar('Please select source language first.');
+                }
+              },
+              readOnly: controller.isloading.value ? false : true,
               autofocus: false,
               controller: controller.chatController,
               decoration: const InputDecoration.collapsed(
@@ -307,11 +305,41 @@ class ChatBotView extends GetView<ChatBotController> {
               },
             );
           })),
-          IconButton(
-              onPressed: () {
-                // controller. sendMessage();
-              },
-              icon: const Icon(Icons.mic, color: ColorConsts.greyColor)),
+          Obx(() {
+            return Stack(
+              children: [
+                if (controller.recordingOngoing.value) Lottie.asset(AssetConsts.recording, repeat: true),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ...List.generate(
+                      1,
+                          (index) => MicroPhone(
+                        onTapMic: (ongoing) {
+                          if
+                          (controller.sourceLang.isNotEmpty ?? false) {
+                            controller.startRecording();
+                          } else {
+                            showSnackBar('Please select Source language.');
+                          }
+                        },
+                        onTapRemove:
+                            (controller.sourceLang.isNotEmpty ?? false)
+                            ? (te) async {
+                          controller.fromTarget = index == 0 ? false : true;
+                          await controller.stopRecordingAndGetResult();
+                          await controller.workingData();
+                          controller.computeAsrTranslationTts();
+                        }
+                            : null,
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            );
+          }),
+
           IconButton(
               onPressed: () {
                 controller.sendMessage();
