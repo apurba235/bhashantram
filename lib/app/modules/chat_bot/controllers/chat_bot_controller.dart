@@ -28,18 +28,36 @@ class ChatBotController extends GetxController {
   late String check = "-->";
   RxBool isLoad = RxBool(false);
   var isloading = false.obs;
+  String responseToOutputTranslationId = '';
 
   Future<void> sendMessage() async {
     isLoad.value = true;
-    ChatMessage message =
-        ChatMessage(text: chatController.text, sender: "user");
+    ChatMessage message = ChatMessage(text: chatController.text, sender: "user");
 
     chats.value.insert(0, message);
     chats.refresh();
-    await computeTranslation();
+    bool checkTrue = false;
+    if (chatController.text.contains(check)) {
+      checkTrue = true;
+    } else {
+      checkTrue = false;
+    }
+    if (translationId.isNotEmpty) {
+    botInput=  await computeTranslation(chatController.text,translationId,sourceLang.value??"","en");
+    }else{
+      botInput = message.text;
+    }
+
     log(chats.value.first.text, name: "check");
     chatController.clear();
-    final response = await sendMessageToGpt(botInput);
+    if (checkTrue) {
+      botInput = '$check $botInput';
+    }
+    String response="";
+     response = await sendMessageToGpt(botInput);
+    if(responseToOutputTranslationId.isNotEmpty){
+     response= await computeTranslation(response,responseToOutputTranslationId,"en",sourceLang.value??"");
+    }
     ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
     chats.value.insert(0, botMessage);
     isLoad.value = false;
@@ -67,8 +85,7 @@ class ChatBotController extends GetxController {
     } else {
       mymessage.add({
         "role": "user",
-        "content":
-            "All your answers should be within the word limit of 60 words. My message is: $message.",
+        "content": "All your answers should be within the word limit of 60 words. My message is: $message.",
       });
     }
 
@@ -77,16 +94,12 @@ class ChatBotController extends GetxController {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> parseResponse = json.decode(response.body);
-      String finishReasonInResponse =
-          parseResponse["choices"][0]["finish_reason"];
+      String finishReasonInResponse = parseResponse["choices"][0]["finish_reason"];
       contentToReturn = parseResponse["choices"][0]["message"]["content"];
 
       while (finishReasonInResponse != reasonToStop) {
         mymessage.add({"role": "assistant", "content": contentToReturn});
-        mymessage.add({
-          "role": "user",
-          "content": 'Please complete the previous answer.'
-        });
+        mymessage.add({"role": "user", "content": 'Please complete the previous answer.'});
 
         response = await gptAPICall(mymessage);
 
@@ -94,15 +107,13 @@ class ChatBotController extends GetxController {
           parseResponse = json.decode(response.body);
           finishReasonInResponse = parseResponse["choices"][0]["finish_reason"];
 
-          contentToReturn +=
-              ' ${parseResponse["choices"][0]["message"]["content"]}';
+          contentToReturn += ' ${parseResponse["choices"][0]["message"]["content"]}';
         }
       }
       contentToReturn = contentToReturn.trim();
 
       if (mymessage.length == 1) {
-        contentToReturn +=
-            "\nPlease set the Topic in following manner:\n--> Topic_name";
+        contentToReturn += "\nPlease set the Topic in following manner:\n--> Topic_name";
       }
 
       mymessage.add({
@@ -125,9 +136,8 @@ class ChatBotController extends GetxController {
       "max_tokens": 60,
       "temperature": 0.6,
     };
-    final response = await http.post(url,
-        headers: {"Content-Type": "application/json", "api-key": apiKey},
-        body: json.encode(body));
+    final response =
+        await http.post(url, headers: {"Content-Type": "application/json", "api-key": apiKey}, body: json.encode(body));
     log(response.body);
 
     return response;
@@ -158,16 +168,14 @@ class ChatBotController extends GetxController {
   }
 
   String getLanguageName(String code) => LanguageCode.languageCode.entries
-      .firstWhere((element) => element.key == code,
-          orElse: () => MapEntry('', code))
+      .firstWhere((element) => element.key == code, orElse: () => MapEntry('', code))
       .value;
 
   //end language controoler code
 
   /// Bhashini Api integration
 
-  Rxn<TransliterationModels?> transliterationModels =
-      Rxn<TransliterationModels>();
+  Rxn<TransliterationModels?> transliterationModels = Rxn<TransliterationModels>();
   String transliterationModelsId = "";
   String transliterationInput = "";
   Rxn<TransliterationResponse?> hints = Rxn<TransliterationResponse>();
@@ -186,27 +194,26 @@ class ChatBotController extends GetxController {
     BhashiniCalls.instance.generateComputeHeader(computeApiKey, computeApiValue);
   }
 
-  void getTranslationId(){
+  void getTranslationId() {
     translationId = languages.value?.pipelineResponseConfig
-        ?.firstWhere((element) => element.taskType == 'translation')
-        .config
-        ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains(sourceLang) ?? false) &&
-        (e.language?.targetLanguage?.contains('en') ?? false)))
-        .serviceId ??
+            ?.firstWhere((element) => element.taskType == 'translation')
+            .config
+            ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains(sourceLang) ?? false) &&
+                (e.language?.targetLanguage?.contains('en') ?? false)))
+            .serviceId ??
         "";
   }
 
   Future<void> getTransliterationModels() async {
-    TransliterationModels? response =
-        await BhashiniCalls.instance.getTransliterationModels();
+    TransliterationModels? response = await BhashiniCalls.instance.getTransliterationModels();
     if (response != null) {
       transliterationModels.value = response;
     }
   }
 
   Future<void> computeTransliteration() async {
-    TransliterationResponse? response = await BhashiniCalls.instance
-        .computeTransliteration(transliterationModelsId, transliterationInput);
+    TransliterationResponse? response =
+        await BhashiniCalls.instance.computeTransliteration(transliterationModelsId, transliterationInput);
     if (response != null) {
       hints.value = response;
     }
@@ -219,8 +226,7 @@ class ChatBotController extends GetxController {
     transliterationModelsId = transliterationModels.value?.data
             ?.firstWhere(
               (element) => ((element.languages?.first.sourceLanguage == 'en') &&
-                  (element.languages?.first.targetLanguage ==
-                      sourceLang.value)),
+                  (element.languages?.first.targetLanguage == sourceLang.value)),
               orElse: () => Data(modelId: ''),
             )
             .modelId ??
@@ -239,217 +245,24 @@ class ChatBotController extends GetxController {
     transliterationInput = chatController.text.substring(index);
   }
 
-  Future<void> computeTranslation() async {
+  Future<String> computeTranslation(String input,String serviceId,String source,String target) async {
     TranslationResponse? response = await BhashiniCalls.instance
-        .computeTranslation(computeTranslationUrl, sourceLang.value ?? '', 'en', chatController.text, translationId);
+        .computeTranslation(computeTranslationUrl, source , target, input, serviceId);
     if (response != null) {
       translatedResponse.value = response;
     }
-    botInput = translatedResponse.value?.pipelineResponse?.first.output?.first.target ?? '';
-    log(botInput,name: "translation");
+   return translatedResponse.value?.pipelineResponse?.first.output?.first.target ?? '';
   }
 
-  // // Translation Api call
-  // Rxn<AsrTranslationTtsResponse?> asrTranslationTts = Rxn<AsrTranslationTtsResponse>();
-  // String asrServiceId = "";
-  // // String translationId = "";
-  // String ttsId = "";
-  // String workingSource = '';
-  // String workingTarget = '';
-  // RxnString input = RxnString();
-  // RxnString output = RxnString();
-  // bool fromTarget = false;
-  // final PlayerController _playerController = PlayerController();
-  // String recordedAudioPath = '';
-  // // RxBool playingAudio = RxBool(false);
-  // RxBool inputAudioPlay = RxBool(false);
-  // RxBool outputAudioPlay = RxBool(false);
-  // final VoiceRecorder _voiceRecorder = VoiceRecorder();
-  // int samplingRate = 8000;
-  // RxBool recordingOngoing = RxBool(false);
-  // String encodedAudio = '';
-  // String ttsFilePath = '';
-  // String inputAudioPath = '';
-  // String outputAudioPath = '';
-  // String computeURL = '';
-  // // String computeApiKey = '';
-  // // String computeApiValue = '';
-  // bool isMicPermissionGranted = false;
-  //
-  //
-  // Future<void> computeAsrTranslationTts() async {
-  //   languageLoader.value = true;
-  //   AsrTranslationTtsResponse? response = await BhashiniCalls.instance.computeAsrTranslationTts(
-  //       computeURL, workingSource, workingTarget, encodedAudio, asrServiceId, translationId, ttsId);
-  //   if (response != null) {
-  //     asrTranslationTts.value = response;
-  //   }
-  //   languageLoader.value = false;
-  //   if (fromTarget) {
-  //     input.value = asrTranslationTts.value?.pipelineResponse
-  //         ?.firstWhere((element) => element.taskType == 'translation')
-  //         .output
-  //         ?.first
-  //         .target ??
-  //         '';
-  //     output.value = asrTranslationTts.value?.pipelineResponse
-  //         ?.firstWhere((element) => element.taskType == 'translation')
-  //         .output
-  //         ?.first
-  //         .source ??
-  //         '';
-  //     String generatedAudio = asrTranslationTts.value?.pipelineResponse
-  //         ?.firstWhere((element) => element.taskType == 'tts')
-  //         .audio
-  //         ?.first
-  //         .audioContent ??
-  //         '';
-  //     await writeTTsAudio(generatedAudio, true);
-  //     outputAudioPath = recordedAudioPath;
-  //     log(inputAudioPath, name: 'input');
-  //     playRecordedAudio(inputAudioPath, true);
-  //   } else {
-  //     output.value = asrTranslationTts.value?.pipelineResponse
-  //         ?.firstWhere((element) => element.taskType == 'translation')
-  //         .output
-  //         ?.first
-  //         .target ??
-  //         '';
-  //     input.value = asrTranslationTts.value?.pipelineResponse
-  //         ?.firstWhere((element) => element.taskType == 'translation')
-  //         .output
-  //         ?.first
-  //         .source ??
-  //         '';
-  //     String generatedAudio = asrTranslationTts.value?.pipelineResponse
-  //         ?.firstWhere((element) => element.taskType == 'tts')
-  //         .audio
-  //         ?.first
-  //         .audioContent ??
-  //         '';
-  //     await writeTTsAudio(generatedAudio, false);
-  //     inputAudioPath = recordedAudioPath;
-  //     playRecordedAudio(outputAudioPath, false);
-  //   }
-  // }
-  //
-  // Future<void> workingData() async {
-  //   if (fromTarget) {
-  //     workingSource = targetLang.value ?? '';
-  //     workingTarget = sourceLang.value ?? '';
-  //   } else {
-  //     workingSource = sourceLang.value ?? '';
-  //     workingTarget = targetLang.value ?? '';
-  //   }
-  //   getAsrServiceId();
-  //   getTranslationAndTtsId();
-  // }
-  //
-  // void computeApiData() {
-  //   computeURL = languages.value?.pipelineInferenceAPIEndPoint?.callbackUrl ?? '';
-  //   computeApiKey = languages.value?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.name ?? '';
-  //   computeApiValue = languages.value?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value ?? '';
-  //   BhashiniCalls.instance.generateComputeHeader(computeApiKey, computeApiValue);
-  // }
-  //
-  // void getAsrServiceId() {
-  //   asrServiceId = languages.value?.pipelineResponseConfig
-  //       ?.firstWhere((element) => element.taskType == 'asr')
-  //       .config
-  //       ?.firstWhere((e) => e.language?.sourceLanguage?.contains(workingSource) ?? false)
-  //       .serviceId ??
-  //       "";
-  //   log(asrServiceId, name: 'Asr Service  ID');
-  // }
-  //
-  // void getTranslationAndTtsId() {
-  //   translationId = languages.value?.pipelineResponseConfig
-  //       ?.firstWhere((element) => element.taskType == 'translation')
-  //       .config
-  //       ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains(workingSource) ?? false) &&
-  //       (e.language?.targetLanguage?.contains(workingTarget) ?? false)))
-  //       .serviceId ??
-  //       "";
-  //   ttsId = languages.value?.pipelineResponseConfig
-  //       ?.firstWhere((element) => element.taskType == 'tts')
-  //       .config
-  //       ?.firstWhere((e) => (e.language?.sourceLanguage?.contains(workingTarget) ?? false))
-  //       .serviceId ??
-  //       "";
-  //   log(translationId, name: 'Translation Service  ID');
-  //   log(ttsId, name: 'TTS Service  ID');
-  // }
-  //
-  //
-  // Future<void> startRecording() async {
-  //   await PermissionHandler.requestPermissions().then((result) {
-  //     isMicPermissionGranted = result;
-  //   });
-  //   if (isMicPermissionGranted) {
-  //     recordingOngoing.value = true;
-  //     await _voiceRecorder.startRecordingVoice(samplingRate);
-  //   }
-  // }
-  //
-  // Future<void> stopRecordingAndGetResult() async {
-  //   recordingOngoing.value = false;
-  //   encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
-  //   recordedAudioPath = _voiceRecorder.getAudioFilePath()??'';
-  // }
-  //
-  // Future<void> playRecordedAudio(String filePath, bool inputAudio) async {
-  //   log(filePath, name: 'AudioFile');
-  //   if(inputAudio){
-  //     inputAudioPlay.value = true;
-  //   }else{
-  //     outputAudioPlay.value = true;
-  //   }
-  //   // playingAudio.value = true;
-  //   if (_playerController.playerState == PlayerState.playing || _playerController.playerState == PlayerState.paused) {
-  //     await _playerController.stopPlayer();
-  //   }
-  //   await _playerController.preparePlayer(
-  //     path: filePath,
-  //     shouldExtractWaveform: false,
-  //   );
-  //   await _playerController.startPlayer(finishMode: FinishMode.pause);
-  //   await Future.delayed(Duration(milliseconds: _playerController.maxDuration));
-  //   // playingAudio.value = false;
-  //   if(inputAudio){
-  //     inputAudioPlay.value = false;
-  //   }else{
-  //     outputAudioPlay.value = false;
-  //   }
-  // }
-  //
-  // Future<void> writeTTsAudio(String audioContent, bool fromTarget) async {
-  //   Uint8List? fileAsBytes = base64Decode(audioContent);
-  //   Directory appDocDir = await getApplicationDocumentsDirectory();
-  //   String recordingPath = '${appDocDir.path}/recordings';
-  //   if (!await Directory(recordingPath).exists()) {
-  //     Directory(recordingPath).create();
-  //   }
-  //   if(fromTarget){
-  //     inputAudioPath = '$recordingPath/TTSAudio${DateTime.now().millisecondsSinceEpoch}.wav';
-  //     File? ttsAudioFile = File(inputAudioPath);
-  //     await ttsAudioFile.writeAsBytes(fileAsBytes);
-  //   }else{
-  //     outputAudioPath = '$recordingPath/TTSAudio${DateTime.now().millisecondsSinceEpoch}.wav';
-  //     File? ttsAudioFile = File(outputAudioPath);
-  //     await ttsAudioFile.writeAsBytes(fileAsBytes);
-  //   }
-  // }
-  //
-  // Future<void> computeTranslation() async {
-  //   TranslationResponse? response = await BhashiniCalls.instance
-  //       .computeTranslation(computeTranslationUrl, sourceLang.value ?? '', 'en', translationInput, translationId);
-  //   if (response != null) {
-  //     translatedResponse.value = response;
-  //   }
-  //   botInput = translatedResponse.value?.pipelineResponse?.first.output?.first.target ?? '';
-  // }
-
-
+  void getResponseToOutputTranslationId() {
+    responseToOutputTranslationId = languages.value?.pipelineResponseConfig
+        ?.firstWhere((element) => element.taskType == 'translation')
+        .config
+        ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains('en') ?? false) &&
+        (e.language?.targetLanguage?.contains(sourceLang.value ?? '') ?? false)))
+        .serviceId ??
+        "";
+  }
 
   @override
   void onInit() async {

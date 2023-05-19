@@ -70,7 +70,11 @@ class ChatBotView extends GetView<ChatBotController> {
                                 Get.bottomSheet(isDismissible: false, Obx(() {
                                   return AppBottomSheet(
                                     onTapSelect: () {
-                                      controller.getTransliterationModelId();
+                                      if(controller.sourceLang.value!='en'){
+                                        controller.getTransliterationModelId();
+                                      }else{
+                                        controller.transliterationModelsId="";
+                                      }
                                       Get.back();
                                     },
                                     selectButtonColor: (controller.sourceLang.value != null)
@@ -99,7 +103,13 @@ class ChatBotView extends GetView<ChatBotController> {
                                                           controller.sourceLang.value = controller
                                                                   .languages.value?.languages?[index].sourceLanguage ??
                                                               '';
-                                                          controller.getTranslationId();
+                                                          if(controller.sourceLang.value != 'en'){
+                                                            controller.getTranslationId();
+                                                            controller.getResponseToOutputTranslationId();
+                                                          }else{
+                                                            controller.translationId="";
+                                                            controller.responseToOutputTranslationId="";
+                                                          }
 
                                                           controller.selectedSourceLangIndex = index;
                                                           controller.targetLang.value = null;
@@ -236,7 +246,7 @@ class ChatBotView extends GetView<ChatBotController> {
                   hintText: "Hello ChatGPT!", hintStyle: const TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
               onChanged: (v) {
                 controller.getTransliterationInput();
-                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) && (controller.sourceLang.isNotEmpty ?? false)) {
+                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) && (controller.sourceLang.isNotEmpty ?? false)&&(controller.sourceLang.value!='en')) {
                   controller.computeTransliteration();
                 }
               },
