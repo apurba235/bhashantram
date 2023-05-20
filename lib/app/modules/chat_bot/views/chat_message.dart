@@ -46,9 +46,7 @@ class ChatMessage extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 GestureDetector(
-                                  onTap:(){
-
-                                  },
+                                  onTap:(){},
                                     child: const Icon(Icons.play_circle_outlined, color: ColorConsts.whiteColor, size: 30)),
                                 const SizedBox(width: 5),
                                 Flexible(
