@@ -79,7 +79,7 @@ class ConverseView extends GetView<ConverseController> {
                                                       await Share.shareXFiles(
                                                         [XFile(controller.inputAudioPath)],
                                                         sharePositionOrigin:
-                                                        Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
+                                                            Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
                                                       );
                                                     }
                                                   },
@@ -89,11 +89,11 @@ class ConverseView extends GetView<ConverseController> {
                                                 GestureDetector(
                                                   onTap: (controller.input.value?.isNotEmpty ?? false)
                                                       ? () async {
-                                                    await Clipboard.setData(
-                                                      ClipboardData(text: controller.input.value ?? ''),
-                                                    );
-                                                    showSnackBar('Copied to clipboard');
-                                                  }
+                                                          await Clipboard.setData(
+                                                            ClipboardData(text: controller.input.value ?? ''),
+                                                          );
+                                                          showSnackBar('Copied to clipboard');
+                                                        }
                                                       : null,
                                                   child: Image.asset(AssetConsts.copy),
                                                 ),
@@ -217,9 +217,9 @@ class ConverseView extends GetView<ConverseController> {
                                         showSnackBar('Please select both language.');
                                       }
                                     },
-                                    onTapRemove: ((controller.sourceLang.isNotEmpty ?? false) &&
+                                    onTapCancel: ((controller.sourceLang.isNotEmpty ?? false) &&
                                             (controller.targetLang.isNotEmpty ?? false))
-                                        ? (te) async {
+                                        ? () async {
                                             controller.fromTarget = index == 0 ? false : true;
                                             await controller.stopRecordingAndGetResult();
                                             await controller.workingData();
@@ -245,8 +245,7 @@ class ConverseView extends GetView<ConverseController> {
                               onTapButton: index == 0
                                   ? () {
                                       Get.bottomSheet(isDismissible: false, Obx(() {
-                                        return
-                                          AppBottomSheet(
+                                        return AppBottomSheet(
                                           onTapSelect: () {
                                             Get.back();
                                           },
@@ -265,7 +264,9 @@ class ConverseView extends GetView<ConverseController> {
                                                     child: GridView.builder(
                                                       itemCount: (controller.languages.value?.languages?.length ?? 0),
                                                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                          crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
+                                                          crossAxisCount: 2,
+                                                          crossAxisSpacing: 10.0,
+                                                          mainAxisExtent: 80),
                                                       itemBuilder: (cx, index) {
                                                         return Column(
                                                           mainAxisSize: MainAxisSize.min,

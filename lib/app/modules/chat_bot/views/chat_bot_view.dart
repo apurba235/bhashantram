@@ -243,21 +243,23 @@ class ChatBotView extends GetView<ChatBotController> {
               },
             );
           })),
-          MicroPhone(
-            onTapMic: (ongoing) {
-              log('started ');
-              controller.startRecording();
-            },
-            onTapRemove: (te) async {
-              log('stopped');
-              await controller.stopRecordingAndGetResult();
-              await controller.computeAsr();
-              // await controller.computeAsrTranslation();
-              await controller.sendMessage();
-            },
-            padding: const EdgeInsets.all(10),
-            micHeight: 20,
-          ),
+          Obx(() {
+            return MicroPhone(
+              onTapMic: (ongoing) {
+                log('started ');
+                controller.startRecording();
+              },
+              onTapCancel: () async {
+                log('stopped');
+                await controller.stopRecordingAndGetResult();
+                await controller.computeAsr();
+                await controller.sendMessage();
+              },
+              padding: const EdgeInsets.all(10),
+              micHeight: 20,
+              micColor: controller.recordingOngoing.value ? Colors.red : null,
+            );
+          }),
           IconButton(
               onPressed: () {
                 controller.sendMessage();
