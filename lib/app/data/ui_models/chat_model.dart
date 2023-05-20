@@ -5,6 +5,7 @@ class ChatModel {
   String userType;
   String? audioPath;
   RxBool isPlaying;
+  RxBool isComputeTTs;
 
-  ChatModel({required this.message, required this.userType, this.audioPath, required this.isPlaying});
+  ChatModel({required this.message, required this.userType, this.audioPath, required this.isPlaying, required this.isComputeTTs});
 }

@@ -163,20 +163,12 @@ class ChatBotView extends GetView<ChatBotController> {
                       itemBuilder: (context, item) {
                         final data = controller.conversations.value[item];
                         return Stack(alignment: Alignment.topLeft, children: [
-                          if (data.userType == 'bot')
-                            Container(
-                              width: 50,
-                              decoration:
-                                  const BoxDecoration(shape: BoxShape.circle, color: ColorConsts.lightgreyColor),
-                              child: Image.asset(
-                                AssetConsts.bot,
-                                fit: BoxFit.fill,
-                              ),
-                            ),
                           Align(
                             alignment: data.userType == 'user' ? Alignment.topRight : Alignment.topLeft,
                             child: Container(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: data.userType == 'user'
+                                  ? const EdgeInsets.all(10.0)
+                                  : const EdgeInsets.only(left: 18.0, top: 12.0, bottom: 0.0, right: 5.0),
                               margin: EdgeInsets.only(
                                   top: 25, bottom: 10, right: data.userType == "user" ? 0.0 : 40.0, left: 30.0),
                               decoration: BoxDecoration(
@@ -195,18 +187,19 @@ class ChatBotView extends GetView<ChatBotController> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (data.audioPath?.isNotEmpty ?? false)
+                                  if ((data.userType == "user") && (data.audioPath?.isNotEmpty ?? false))
                                     Padding(
                                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           GestureDetector(
-                                            onTap: () async{
-                                              if(data.isPlaying.value){
+                                            onTap: () async {
+                                              if (data.isPlaying.value) {
                                                 ///pause
-                                                data.isPlaying.value =false;
-                                              }else{
+                                                await controller.stopPlayer();
+                                                data.isPlaying.value = false;
+                                              } else {
                                                 if (controller.previousPlayingIndex >= 0) {
                                                   controller.conversations.value[controller.previousPlayingIndex]
                                                       .isPlaying.value = false;
@@ -248,42 +241,80 @@ class ChatBotView extends GetView<ChatBotController> {
                                   ),
                                   if (data.userType == 'bot')
                                     GestureDetector(
-                                      onTap: () {},
-                                      child: Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Container(
-                                          margin: const EdgeInsets.only(top: 10, right: 10, bottom: 10),
-                                          width: 25,
-                                          child: Image.asset(
-                                            AssetConsts.speaker,
-                                            fit: BoxFit.cover,
+                                      onTap: () async {
+                                        if (data.isPlaying.value) {
+                                          await controller.stopPlayer();
+                                          data.isPlaying.value = false;
+                                        } else {
+                                          if (data.audioPath?.isNotEmpty ?? false) {
+                                            if (controller.previousPlayingIndex >= 0) {
+                                              controller.conversations.value[controller.previousPlayingIndex].isPlaying
+                                                  .value = false;
+                                            }
+                                            controller.previousPlayingIndex = item;
+                                            data.isPlaying.value = true;
+                                            log(data.isPlaying.value.toString());
+                                            await controller.playRecordedAudio(data.audioPath ?? '');
+                                            data.isPlaying.value = false;
+                                            log(data.isPlaying.value.toString());
+                                          } else {
+                                            if (controller.previousPlayingIndex >= 0) {
+                                              controller.conversations.value[controller.previousPlayingIndex].isPlaying
+                                                  .value = false;
+                                              await controller.stopPlayer();
+                                            }
+                                            await controller.computeTts(data.message, item);
+                                            data.isPlaying.value = true;
+                                            log(data.isPlaying.value.toString());
+                                            controller.previousPlayingIndex = item;
+                                            await controller.playRecordedAudio(data.audioPath ?? '');
+                                            data.isPlaying.value = false;
+                                            log(data.isPlaying.value.toString());
+                                            controller.ttsFilePath = '';
+                                          }
+                                        }
+                                      },
+                                      child: Obx(() {
+                                        return Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Container(
+                                            margin: const EdgeInsets.only(top: 10, right: 10, bottom: 10),
+                                            width: 35,
+                                            height: 40,
+                                            child: data.isComputeTTs.value
+                                                ? const Center(child: CircularProgressIndicator())
+                                                : Icon(
+                                                    data.isPlaying.value
+                                                        ? Icons.pause_circle_outline_outlined
+                                                        : Icons.play_circle_outlined,
+                                                    size: 40,
+                                                  ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      }),
                                     ),
                                 ],
                               ),
                             ),
                           ),
+                          if (data.userType == 'bot')
+                            Container(
+                              width: 50,
+                              decoration:
+                              BoxDecoration(shape: BoxShape.circle, color: ColorConsts.lightgreyColor, border: Border.all(color: ColorConsts.blueColor)),
+                              child: Image.asset(
+                                AssetConsts.bot,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                         ]);
                       },
                     ),
                   );
                 }),
-                // Obx(() {
-                //   return Flexible(
-                //     child: ListView.builder(
-                //       itemCount: controller.chats.value.length,
-                //       reverse: true,
-                //       itemBuilder: (context, index) {
-                //         return controller.chats.value[index];
-                //       },
-                //     ),
-                //   );
-                // }),
                 if (controller.isLoad.value) const ThreeDots(),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -333,7 +364,7 @@ class ChatBotView extends GetView<ChatBotController> {
 
   Widget _buildTextComposer() {
     return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Row(
         children: [
           Expanded(child: Obx(() {

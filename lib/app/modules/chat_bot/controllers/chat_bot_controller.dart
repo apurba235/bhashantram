@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../common/consts/app_url.dart';
 import '../../../common/utils/language_code.dart';
 import '../../../common/utils/permission_handler.dart';
@@ -13,6 +16,7 @@ import '../../../data/network_models/language_models.dart';
 import '../../../data/network_models/translation_models.dart';
 import '../../../data/network_models/transliteration_models.dart';
 import '../../../data/network_models/transliteration_response.dart';
+import '../../../data/network_models/tts_models.dart';
 import '../../../data/ui_models/chat_model.dart';
 import '../views/chat_message.dart';
 import 'package:http/http.dart' as http;
@@ -35,7 +39,8 @@ class ChatBotController extends GetxController {
       message: chatController.text,
       userType: "user",
       audioPath: recordedAudioPath.isNotEmpty ? recordedAudioPath : null,
-      isPlaying: false.obs
+      isPlaying: false.obs,
+      isComputeTTs: false.obs,
     );
     // ChatMessage message = ChatMessage(
     //   text: chatController.text,
@@ -69,7 +74,7 @@ class ChatBotController extends GetxController {
     if (responseToOutputTranslationId.isNotEmpty) {
       response = await computeTranslation(response, responseToOutputTranslationId, "en", sourceLang.value ?? "");
     }
-    ChatModel botReply = ChatModel(message: response, userType: "bot", isPlaying: false.obs);
+    ChatModel botReply = ChatModel(message: response, userType: "bot", isPlaying: false.obs, isComputeTTs: false.obs);
     conversations.value.insert(0, botReply);
     conversations.refresh();
     // ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
@@ -187,6 +192,8 @@ class ChatBotController extends GetxController {
   String recordedAudioPath = '';
   Rxn<AsrResponse?> asrResponse = Rxn<AsrResponse?>();
   final PlayerController _playerController = PlayerController();
+  Rxn<TtsResponse?> ttsResponse = Rxn<TtsResponse>();
+  String ttsFilePath = '';
 
   Future<void> getLanguages() async {
     languageLoader.value = true;
@@ -330,6 +337,35 @@ class ChatBotController extends GetxController {
     );
     await _playerController.startPlayer(finishMode: FinishMode.pause);
     await Future.delayed(Duration(milliseconds: _playerController.maxDuration));
+  }
+
+  Future<void> stopPlayer() async{
+    await _playerController.stopPlayer();
+  }
+
+  Future<void> computeTts(String input, int index) async {
+    conversations.value[index].isComputeTTs.value = true;
+    TtsResponse? response =
+    await BhashiniCalls.instance.generateTTS(computeUrl, sourceLang.value ?? '',  input, ttsId);
+    if (response != null) {
+      ttsResponse.value = response;
+    }
+    String audioTts = response?.pipelineResponse?.first.audio?.first.audioContent ?? '';
+    await writeTTsAudio(audioTts, index);
+    conversations.value[index].isComputeTTs.value = false;
+  }
+
+  Future<void> writeTTsAudio(String audioContent, int index) async {
+    Uint8List? fileAsBytes = base64Decode(audioContent);
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String recordingPath = '${appDocDir.path}/recordings';
+    if (!await Directory(recordingPath).exists()) {
+      Directory(recordingPath).create();
+    }
+    ttsFilePath = '$recordingPath/TTSAudio${DateTime.now().millisecondsSinceEpoch}.wav';
+    File? ttsAudioFile = File(ttsFilePath);
+    await ttsAudioFile.writeAsBytes(fileAsBytes);
+    conversations.value[index].audioPath = ttsAudioFile.path;
   }
 
   @override
