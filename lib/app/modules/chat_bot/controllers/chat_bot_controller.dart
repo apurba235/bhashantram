@@ -27,8 +27,12 @@ class ChatBotController extends GetxController {
 
   Future<void> sendMessage() async {
     isLoad.value = true;
-    ChatMessage message = ChatMessage(text: chatController.text, sender: "user");
-
+    ChatMessage message = ChatMessage(
+      text: chatController.text,
+      sender: "user",
+      audioPath: recordedAudioPath.isNotEmpty ? recordedAudioPath : null,
+    );
+    recordedAudioPath = '';
     chats.value.insert(0, message);
     chats.refresh();
     bool checkTrue = false;
@@ -38,8 +42,8 @@ class ChatBotController extends GetxController {
       checkTrue = false;
     }
     if (translationId.isNotEmpty) {
-      botInput=  await computeTranslation(chatController.text,translationId,sourceLang.value??"","en");
-    }else{
+      botInput = await computeTranslation(chatController.text, translationId, sourceLang.value ?? "", "en");
+    } else {
       botInput = message.text;
     }
 
@@ -48,10 +52,10 @@ class ChatBotController extends GetxController {
     if (checkTrue) {
       botInput = '$check $botInput';
     }
-    String response="";
-     response = await sendMessageToGpt(botInput);
-    if(responseToOutputTranslationId.isNotEmpty){
-     response= await computeTranslation(response,responseToOutputTranslationId,"en",sourceLang.value??"");
+    String response = "";
+    response = await sendMessageToGpt(botInput);
+    if (responseToOutputTranslationId.isNotEmpty) {
+      response = await computeTranslation(response, responseToOutputTranslationId, "en", sourceLang.value ?? "");
     }
     ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
     chats.value.insert(0, botMessage);
@@ -188,18 +192,18 @@ class ChatBotController extends GetxController {
     BhashiniCalls.instance.generateComputeHeader(computeApiKey, computeApiValue);
   }
 
-  void getAsrAndTtsServiceId(){
+  void getAsrAndTtsServiceId() {
     asrServiceId = languages.value?.pipelineResponseConfig
-        ?.firstWhere((element) => element.taskType == 'asr')
-        .config
-        ?.firstWhere((e) => e.language?.sourceLanguage?.contains(sourceLang) ?? false)
-        .serviceId ??
+            ?.firstWhere((element) => element.taskType == 'asr')
+            .config
+            ?.firstWhere((e) => e.language?.sourceLanguage?.contains(sourceLang) ?? false)
+            .serviceId ??
         "";
     ttsId = languages.value?.pipelineResponseConfig
-        ?.firstWhere((element) => element.taskType == 'tts')
-        .config
-        ?.firstWhere((e) => (e.language?.sourceLanguage?.contains(sourceLang) ?? false))
-        .serviceId ??
+            ?.firstWhere((element) => element.taskType == 'tts')
+            .config
+            ?.firstWhere((e) => (e.language?.sourceLanguage?.contains(sourceLang) ?? false))
+            .serviceId ??
         "";
   }
 
@@ -254,31 +258,32 @@ class ChatBotController extends GetxController {
     transliterationInput = chatController.text.substring(index);
   }
 
-  Future<void> computeAsr() async{
-    AsrResponse? response = await BhashiniCalls.instance.computeAsr(computeUrl, sourceLang.value??'', asrServiceId, encodedAudio);
-    if(response != null){
+  Future<void> computeAsr() async {
+    AsrResponse? response =
+        await BhashiniCalls.instance.computeAsr(computeUrl, sourceLang.value ?? '', asrServiceId, encodedAudio);
+    if (response != null) {
       asrResponse.value = response;
     }
     chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
     encodedAudio = '';
   }
 
-  Future<String> computeTranslation(String input,String serviceId,String source,String target) async {
-    TranslationResponse? response = await BhashiniCalls.instance
-        .computeTranslation(computeUrl, source , target, input, serviceId);
+  Future<String> computeTranslation(String input, String serviceId, String source, String target) async {
+    TranslationResponse? response =
+        await BhashiniCalls.instance.computeTranslation(computeUrl, source, target, input, serviceId);
     if (response != null) {
       translatedResponse.value = response;
     }
-   return translatedResponse.value?.pipelineResponse?.first.output?.first.target ?? '';
+    return translatedResponse.value?.pipelineResponse?.first.output?.first.target ?? '';
   }
 
   void getResponseToOutputTranslationId() {
     responseToOutputTranslationId = languages.value?.pipelineResponseConfig
-        ?.firstWhere((element) => element.taskType == 'translation')
-        .config
-        ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains('en') ?? false) &&
-        (e.language?.targetLanguage?.contains(sourceLang.value ?? '') ?? false)))
-        .serviceId ??
+            ?.firstWhere((element) => element.taskType == 'translation')
+            .config
+            ?.firstWhere((e) => ((e.language?.sourceLanguage?.contains('en') ?? false) &&
+                (e.language?.targetLanguage?.contains(sourceLang.value ?? '') ?? false)))
+            .serviceId ??
         "";
   }
 
@@ -295,7 +300,7 @@ class ChatBotController extends GetxController {
   Future<void> stopRecordingAndGetResult() async {
     recordingOngoing.value = false;
     encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
-    recordedAudioPath = _voiceRecorder.getAudioFilePath()??'';
+    recordedAudioPath = _voiceRecorder.getAudioFilePath() ?? '';
   }
 
   @override
@@ -303,7 +308,7 @@ class ChatBotController extends GetxController {
     await getLanguages();
     computeApiData();
     await getTransliterationModels();
-
+    await _voiceRecorder.clearOldRecordings();
     super.onInit();
   }
 
