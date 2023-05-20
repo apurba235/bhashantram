@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import '../../../data/network_models/language_models.dart';
 import '../../../data/network_models/translation_models.dart';
 import '../../../data/network_models/transliteration_models.dart';
 import '../../../data/network_models/transliteration_response.dart';
+import '../../../data/ui_models/chat_model.dart';
 import '../views/chat_message.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,21 +22,31 @@ class ChatBotController extends GetxController {
   TextEditingController chatController = TextEditingController();
   String apiKey = AppUrl.chatApikey;
   Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
+  Rx<List<ChatModel>> conversations = Rx<List<ChatModel>>([]);
   final String reasonToStop = 'stop';
   late String check = "-->";
   RxBool isLoad = RxBool(false);
   RxBool isLoading = false.obs;
+  int previousPlayingIndex = -1;
 
   Future<void> sendMessage() async {
     isLoad.value = true;
-    ChatMessage message = ChatMessage(
-      text: chatController.text,
-      sender: "user",
+    ChatModel newMessage = ChatModel(
+      message: chatController.text,
+      userType: "user",
       audioPath: recordedAudioPath.isNotEmpty ? recordedAudioPath : null,
+      isPlaying: false.obs
     );
+    // ChatMessage message = ChatMessage(
+    //   text: chatController.text,
+    //   sender: "user",
+    //   audioPath: recordedAudioPath.isNotEmpty ? recordedAudioPath : null,
+    // );
     recordedAudioPath = '';
-    chats.value.insert(0, message);
-    chats.refresh();
+    conversations.value.insert(0, newMessage);
+    // chats.value.insert(0, message);
+    // chats.refresh();
+    conversations.refresh();
     bool checkTrue = false;
     if (chatController.text.contains(check)) {
       checkTrue = true;
@@ -44,10 +56,10 @@ class ChatBotController extends GetxController {
     if (translationId.isNotEmpty) {
       botInput = await computeTranslation(chatController.text, translationId, sourceLang.value ?? "", "en");
     } else {
-      botInput = message.text;
+      botInput = newMessage.message;
     }
 
-    log(chats.value.first.text, name: "check");
+    // log(chats.value.first.text, name: "check");
     chatController.clear();
     if (checkTrue) {
       botInput = '$check $botInput';
@@ -57,10 +69,13 @@ class ChatBotController extends GetxController {
     if (responseToOutputTranslationId.isNotEmpty) {
       response = await computeTranslation(response, responseToOutputTranslationId, "en", sourceLang.value ?? "");
     }
-    ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
-    chats.value.insert(0, botMessage);
+    ChatModel botReply = ChatModel(message: response, userType: "bot", isPlaying: false.obs);
+    conversations.value.insert(0, botReply);
+    conversations.refresh();
+    // ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
+    // chats.value.insert(0, botMessage);
     isLoad.value = false;
-    chats.refresh();
+    // chats.refresh();
     isLoad.refresh();
   }
 
@@ -171,6 +186,7 @@ class ChatBotController extends GetxController {
   String encodedAudio = '';
   String recordedAudioPath = '';
   Rxn<AsrResponse?> asrResponse = Rxn<AsrResponse?>();
+  final PlayerController _playerController = PlayerController();
 
   Future<void> getLanguages() async {
     languageLoader.value = true;
@@ -301,6 +317,19 @@ class ChatBotController extends GetxController {
     recordingOngoing.value = false;
     encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
     recordedAudioPath = _voiceRecorder.getAudioFilePath() ?? '';
+  }
+
+  Future<void> playRecordedAudio(String filePath) async {
+    log(filePath, name: 'AudioFile');
+    if (_playerController.playerState == PlayerState.playing || _playerController.playerState == PlayerState.paused) {
+      await _playerController.stopPlayer();
+    }
+    await _playerController.preparePlayer(
+      path: filePath,
+      shouldExtractWaveform: false,
+    );
+    await _playerController.startPlayer(finishMode: FinishMode.pause);
+    await Future.delayed(Duration(milliseconds: _playerController.maxDuration));
   }
 
   @override
