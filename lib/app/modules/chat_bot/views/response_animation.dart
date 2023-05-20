@@ -7,16 +7,14 @@ class ThreeDots extends StatefulWidget {
   ThreeDotsState createState() => ThreeDotsState();
 }
 
-class ThreeDotsState extends State<ThreeDots>
-    with SingleTickerProviderStateMixin {
+class ThreeDotsState extends State<ThreeDots> with SingleTickerProviderStateMixin {
   AnimationController? _animationController;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           _currentIndex++;

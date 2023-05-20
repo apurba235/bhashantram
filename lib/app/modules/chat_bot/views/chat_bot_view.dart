@@ -1,10 +1,10 @@
+import 'dart:developer';
+
 import 'package:bhashantram/app/common/consts/asset_consts.dart';
 import 'package:bhashantram/app/modules/chat_bot/views/response_animation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
-
 import '../../../common/consts/color_consts.dart';
 import '../../../common/widget/bottomsheet/bottomsheet.dart';
 import '../../../common/widget/buttons/language_button.dart';
@@ -13,7 +13,7 @@ import '../../../common/widget/snackbar/custom_snackbar.dart';
 import '../controllers/chat_bot_controller.dart';
 
 class ChatBotView extends GetView<ChatBotController> {
-  ChatBotView({Key? key}) : super(key: key);
+  const ChatBotView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,142 +21,129 @@ class ChatBotView extends GetView<ChatBotController> {
         appBar: AppBar(
           backgroundColor: ColorConsts.whiteColor,
           elevation: 2,
-          leadingWidth: 50,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Container(
+          leadingWidth: 90,
+          leading: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BackButton(
+                color: ColorConsts.blackColor,
+                onPressed: () => Get.back(),
+              ),
+              Image.asset(
+                AssetConsts.bot,
                 width: 40,
-                child: Image.asset(
-                  AssetConsts.bot,
-                  width: 40,
-                  fit: BoxFit.cover,
-                )),
+                fit: BoxFit.cover,
+              ),
+            ],
           ),
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
                     "ChatGPT",
                     style: TextStyle(fontSize: 16, color: ColorConsts.blackColor),
                   ),
                   Row(
-                    children: [
-                      const Icon(
-                        Icons.circle,
-                        color: ColorConsts.greenColor,
-                        size: 12,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      const Text("Online", style: TextStyle(fontSize: 12, color: ColorConsts.greenColor)),
+                    children: const [
+                      Icon(Icons.circle, color: ColorConsts.greenColor, size: 12),
+                      SizedBox(width: 5),
+                      Text("Online", style: TextStyle(fontSize: 12, color: ColorConsts.greenColor)),
                     ],
                   ),
                 ],
               ),
-              Spacer(),
               Obx(() {
-                return Row(
-                  children: [
-                    ...List.generate(
-                      1,
-                      (index) => LanguageButton(
-                        languageName:
-                            index == 0 ? (controller.getLanguageName(controller.sourceLang.value ?? 'Language')) : "",
-                        onTapButton: index == 0
-                            ? () {
-                                Get.bottomSheet(isDismissible: false, Obx(() {
-                                  return AppBottomSheet(
-                                    onTapSelect: () {
-                                      if(controller.sourceLang.value!='en'){
-                                        controller.getTransliterationModelId();
-                                      }else{
-                                        controller.transliterationModelsId="";
-                                      }
-                                      Get.back();
-                                    },
-                                    selectButtonColor: (controller.sourceLang.value != null)
-                                        ? ColorConsts.blueColor
-                                        : ColorConsts.blueColor.withOpacity(0.3),
-                                    customWidget: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
-                                      child: SingleChildScrollView(
-                                        child: Column(
+                return LanguageButton(
+                    languageName: (controller.getLanguageName(controller.sourceLang.value ?? 'Language')),
+                    onTapButton: () {
+                      Get.bottomSheet(isDismissible: false, Obx(() {
+                        return AppBottomSheet(
+                          onTapSelect: () {
+                            if (controller.sourceLang.value != 'en') {
+                              controller.getTransliterationModelId();
+                            } else {
+                              controller.transliterationModelsId = "";
+                            }
+                            Get.back();
+                          },
+                          selectButtonColor: (controller.sourceLang.value != null)
+                              ? ColorConsts.blueColor
+                              : ColorConsts.blueColor.withOpacity(0.3),
+                          customWidget: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  SizedBox(
+                                    height: Get.height * 0.4,
+                                    child: GridView.builder(
+                                      itemCount: (controller.languages.value?.languages?.length ?? 0),
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 10.0,
+                                        mainAxisExtent: 80,
+                                      ),
+                                      itemBuilder: (cx, index) {
+                                        return Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
-                                            SizedBox(
-                                              height: Get.height * 0.4,
-                                              child: GridView.builder(
-                                                itemCount: (controller.languages.value?.languages?.length ?? 0),
-                                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisExtent: 80),
-                                                itemBuilder: (cx, index) {
-                                                  return Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          controller.sourceLang.value = controller
-                                                                  .languages.value?.languages?[index].sourceLanguage ??
-                                                              '';
-                                                          if(controller.sourceLang.value != 'en'){
-                                                            controller.getTranslationId();
-                                                            controller.getResponseToOutputTranslationId();
-                                                          }else{
-                                                            controller.translationId="";
-                                                            controller.responseToOutputTranslationId="";
-                                                          }
-
-                                                          controller.selectedSourceLangIndex = index;
-                                                          controller.targetLang.value = null;
-                                                          controller.selectedTargetLangIndex = -1;
-                                                          controller.isloading.value = true;
-                                                        },
-                                                        child: Container(
-                                                          padding: const EdgeInsets.symmetric(
-                                                            horizontal: 12.0,
-                                                            vertical: 20,
-                                                          ),
-                                                          decoration: BoxDecoration(
-                                                            color: index == controller.selectedSourceLangIndex
-                                                                ? Colors.grey.withOpacity(0.2)
-                                                                : null,
-                                                            borderRadius: BorderRadius.circular(12),
-                                                          ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              controller.getLanguageName(
-                                                                controller.languages.value?.languages?[index]
-                                                                        .sourceLanguage ??
-                                                                    '',
-                                                              ),
-                                                              style: const TextStyle(color: ColorConsts.blueColor),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const Divider(color: ColorConsts.blueColor),
-                                                    ],
-                                                  );
-                                                },
+                                            GestureDetector(
+                                              onTap: () {
+                                                controller.sourceLang.value =
+                                                    controller.languages.value?.languages?[index].sourceLanguage ?? '';
+                                                controller.getAsrAndTtsServiceId();
+                                                if (controller.sourceLang.value != 'en') {
+                                                  controller.getTranslationId();
+                                                  controller.getResponseToOutputTranslationId();
+                                                } else {
+                                                  controller.translationId = "";
+                                                  controller.responseToOutputTranslationId = "";
+                                                }
+                                                controller.selectedSourceLangIndex = index;
+                                                controller.isLoading.value = true;
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 12.0,
+                                                  vertical: 20,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: index == controller.selectedSourceLangIndex
+                                                      ? Colors.grey.withOpacity(0.2)
+                                                      : null,
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    controller.getLanguageName(
+                                                      controller.languages.value?.languages?[index].sourceLanguage ??
+                                                          '',
+                                                    ),
+                                                    style: const TextStyle(color: ColorConsts.blueColor),
+                                                  ),
+                                                ),
                                               ),
                                             ),
+                                            const Divider(color: ColorConsts.blueColor),
                                           ],
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                }));
-                              }
-                            : () => showSnackBar('Please select source language first.'),
-                      ),
-                    )
-                  ],
-                );
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }));
+                    });
               }),
             ],
           ),
@@ -176,7 +163,7 @@ class ChatBotView extends GetView<ChatBotController> {
                   ),
                 );
               }),
-              if (controller.isLoad.value) ThreeDots(),
+              if (controller.isLoad.value) const ThreeDots(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
                 child: Card(
@@ -184,9 +171,9 @@ class ChatBotView extends GetView<ChatBotController> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   elevation: 10,
-                  child: Container(
+                  child: SizedBox(
                     height: 60,
-                    child: _buidTextComposer(),
+                    child: _buildTextComposer(),
                   ),
                 ),
               ),
@@ -209,7 +196,7 @@ class ChatBotView extends GetView<ChatBotController> {
                           },
                           child: Container(
                               margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10),
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   color: ColorConsts.greenColor.withOpacity(0.3)),
@@ -225,7 +212,7 @@ class ChatBotView extends GetView<ChatBotController> {
         ));
   }
 
-  Widget _buidTextComposer() {
+  Widget _buildTextComposer() {
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15),
       child: Row(
@@ -233,57 +220,44 @@ class ChatBotView extends GetView<ChatBotController> {
           Expanded(child: Obx(() {
             return TextField(
               onTap: () {
-                if (controller.isloading.value) {
+                if (controller.sourceLang.value?.isNotEmpty ?? false) {
                   return;
                 } else {
                   showSnackBar('Please select source language first.');
                 }
               },
-              readOnly: controller.isloading.value ? false : true,
+              readOnly: controller.isLoading.value ? false : true,
               autofocus: false,
               controller: controller.chatController,
               decoration: const InputDecoration.collapsed(
-                  hintText: "Hello ChatGPT!", hintStyle: const TextStyle(fontSize: 16, color: ColorConsts.blueColor)),
+                hintText: "Hello ChatGPT!",
+                hintStyle: TextStyle(fontSize: 16, color: ColorConsts.blueColor),
+              ),
               onChanged: (v) {
                 controller.getTransliterationInput();
-                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) && (controller.sourceLang.isNotEmpty ?? false)&&(controller.sourceLang.value!='en')) {
+                if (!(v[v.length - 1].contains(RegExp('[^A-Za-z]'))) &&
+                    (controller.sourceLang.isNotEmpty ?? false) &&
+                    (controller.sourceLang.value != 'en')) {
                   controller.computeTransliteration();
                 }
               },
             );
           })),
-          // Obx(() {
-          //   return Stack(
-          //     children: [
-          //       if (controller.recordingOngoing.value) Lottie.asset(AssetConsts.recording, repeat: true),
-          //       Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //         children: [
-          //           ...List.generate(
-          //             1,
-          //             (index) => MicroPhone(
-          //               onTapMic: (ongoing) {
-          //                 if (controller.sourceLang.isNotEmpty ?? false) {
-          //                   controller.startRecording();
-          //                 } else {
-          //                   showSnackBar('Please select Source language.');
-          //                 }
-          //               },
-          //               onTapRemove: (controller.sourceLang.isNotEmpty ?? false)
-          //                   ? (te) async {
-          //                       controller.fromTarget = index == 0 ? false : true;
-          //                       await controller.stopRecordingAndGetResult();
-          //                       await controller.workingData();
-          //                       controller.computeAsrTranslationTts();
-          //                     }
-          //                   : null,
-          //             ),
-          //           )
-          //         ],
-          //       ),
-          //     ],
-          //   );
-          // }),
+          MicroPhone(
+            onTapMic: (ongoing) {
+              log('started ');
+              controller.startRecording();
+            },
+            onTapRemove: (te) async {
+              log('stopped');
+              await controller.stopRecordingAndGetResult();
+              await controller.computeAsr();
+              // await controller.computeAsrTranslation();
+              await controller.sendMessage();
+            },
+            padding: const EdgeInsets.all(10),
+            micHeight: 20,
+          ),
           IconButton(
               onPressed: () {
                 controller.sendMessage();

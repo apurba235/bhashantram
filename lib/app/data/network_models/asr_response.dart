@@ -1,9 +1,9 @@
-class AsrTranslationResponse {
+class AsrResponse {
   List<PipelineResponse>? pipelineResponse;
 
-  AsrTranslationResponse({this.pipelineResponse});
+  AsrResponse({this.pipelineResponse});
 
-  AsrTranslationResponse.fromJson(Map<String, dynamic> json) {
+  AsrResponse.fromJson(Map<String, dynamic> json) {
     if (json['pipelineResponse'] != null) {
       pipelineResponse = <PipelineResponse>[];
       json['pipelineResponse'].forEach((v) {
@@ -119,19 +119,16 @@ class Language {
 
 class Output {
   String? source;
-  String? target;
 
-  Output({this.source, this.target});
+  Output({this.source});
 
   Output.fromJson(Map<String, dynamic> json) {
     source = json['source'];
-    target = json['target'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['source'] = source;
-    data['target'] = target;
     return data;
   }
 }

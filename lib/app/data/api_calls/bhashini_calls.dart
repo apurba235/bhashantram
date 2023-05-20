@@ -1,8 +1,8 @@
 import 'package:bhashantram/app/data/network_client.dart';
+import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
 import 'package:bhashantram/app/data/network_models/language_models.dart';
 
-import '../network_models/asr_translation_response.dart';
 import '../network_models/translation_models.dart';
 import '../network_models/transliteration_models.dart';
 import '../network_models/transliteration_response.dart';
@@ -47,14 +47,8 @@ class BhashiniCalls extends NetworkClient {
     return (response == null) ? null : LanguageModels.fromJson(response);
   }
 
-  /// only for Asr and Translation i.e. from audio generate translation in target language.
-  Future<AsrTranslationResponse?> computeAsrTranslation(
-      String apiUrl,
-      String sourceLang,
-      String targetLang,
-      String audioInput,
-      String asrId,
-      String translationId) async {
+  /// only for ASR Computation
+  Future<AsrResponse?> computeAsr(String apiUrl, String sourceLang, String serviceId, String audioContent) async {
     Map<String, dynamic>? response = await postApi(
       apiUrl,
       body: {
@@ -63,31 +57,22 @@ class BhashiniCalls extends NetworkClient {
             "taskType": "asr",
             "config": {
               "language": {"sourceLanguage": sourceLang},
-              "serviceId": asrId,
+              "serviceId": serviceId,
               "audioFormat": "wav",
-              "samplingRate": 16000
-            }
-          },
-          {
-            "taskType": "translation",
-            "config": {
-              "language": {
-                "sourceLanguage": sourceLang,
-                "targetLanguage": targetLang
-              },
-              "serviceId": translationId
+              "samplingRate": 8000
             }
           }
         ],
         "inputData": {
           "audio": [
-            {"audioContent": audioInput}
+            {"audioContent": audioContent}
           ]
         }
       },
-      header: computeHeader, showResponse: true,
+      header: computeHeader,
+      showResponse: true,
     );
-    return response == null ? null : AsrTranslationResponse.fromJson(response);
+    return response == null ? null : AsrResponse.fromJson(response);
   }
 
   /// only for Asr, Translation and Tts i.e. from audio generate translation in target language and generate speech in target language.
@@ -134,6 +119,7 @@ class BhashiniCalls extends NetworkClient {
     return response == null ? null : AsrTranslationTtsResponse.fromJson(response);
   }
 
+  /// getting Transliteration Models.
   Future<TransliterationModels?> getTransliterationModels() async {
     Map<String, dynamic>? response = await postApi(BhashiniCalls.searchModelTransliteration,
         body: {
@@ -148,6 +134,7 @@ class BhashiniCalls extends NetworkClient {
     return response == null ? null : TransliterationModels.fromJson(response);
   }
 
+  /// Perform Transliteration .
   Future<TransliterationResponse?> computeTransliteration(String modelId, String input) async {
     Map<String, dynamic>? response = await postApi(
       BhashiniCalls.computeTransliterationUrl,

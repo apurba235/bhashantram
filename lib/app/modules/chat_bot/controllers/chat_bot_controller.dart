@@ -1,17 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../../common/consts/app_url.dart';
 import '../../../common/utils/language_code.dart';
 import '../../../common/utils/permission_handler.dart';
 import '../../../common/utils/voice_recorder.dart';
 import '../../../data/api_calls/bhashini_calls.dart';
-import '../../../data/network_models/asr_translation_tts_response.dart';
 import '../../../data/network_models/language_models.dart';
 import '../../../data/network_models/translation_models.dart';
 import '../../../data/network_models/transliteration_models.dart';
@@ -27,8 +23,7 @@ class ChatBotController extends GetxController {
   final String reasonToStop = 'stop';
   late String check = "-->";
   RxBool isLoad = RxBool(false);
-  var isloading = false.obs;
-  String responseToOutputTranslationId = '';
+  RxBool isLoading = false.obs;
 
   Future<void> sendMessage() async {
     isLoad.value = true;
@@ -43,7 +38,7 @@ class ChatBotController extends GetxController {
       checkTrue = false;
     }
     if (translationId.isNotEmpty) {
-    botInput=  await computeTranslation(chatController.text,translationId,sourceLang.value??"","en");
+      botInput=  await computeTranslation(chatController.text,translationId,sourceLang.value??"","en");
     }else{
       botInput = message.text;
     }
@@ -65,31 +60,31 @@ class ChatBotController extends GetxController {
     isLoad.refresh();
   }
 
-  final List<Map<String, String>> mymessage = [];
-  final List<String> finallist = [];
+  final List<Map<String, String>> myMessage = [];
+  final List<String> finalList = [];
 
   Future sendMessageToGpt(String message) async {
     if (message.contains(check)) {
-      mymessage.clear();
-      mymessage.add({
+      myMessage.clear();
+      myMessage.add({
         "role": "system",
         "content": "You are an Indian Citizen working with Government going to act like a very helpful assistant with all the knowledge that there is to offer about India."
             " You know everything there is to know about $message. You will be asked certain questions and you will respond very factually taking into context that the person asking the the questions is an Indian Citizen too."
             " Try to provide your answers concisely within word limit of not more than 30 words and using a single sentence. For each user prompt, check if the question given by the user has the context of current conversation, if not, please say: I do not know.",
       });
 
-      mymessage.add({
+      myMessage.add({
         "role": "user",
         "content": message,
       });
     } else {
-      mymessage.add({
+      myMessage.add({
         "role": "user",
         "content": "All your answers should be within the word limit of 60 words. My message is: $message.",
       });
     }
 
-    dynamic response = await gptAPICall(mymessage);
+    dynamic response = await gptAPICall(myMessage);
     String contentToReturn = '';
 
     if (response.statusCode == 200) {
@@ -98,10 +93,10 @@ class ChatBotController extends GetxController {
       contentToReturn = parseResponse["choices"][0]["message"]["content"];
 
       while (finishReasonInResponse != reasonToStop) {
-        mymessage.add({"role": "assistant", "content": contentToReturn});
-        mymessage.add({"role": "user", "content": 'Please complete the previous answer.'});
+        myMessage.add({"role": "assistant", "content": contentToReturn});
+        myMessage.add({"role": "user", "content": 'Please complete the previous answer.'});
 
-        response = await gptAPICall(mymessage);
+        response = await gptAPICall(myMessage);
 
         if (response.statusCode == 200) {
           parseResponse = json.decode(response.body);
@@ -112,11 +107,11 @@ class ChatBotController extends GetxController {
       }
       contentToReturn = contentToReturn.trim();
 
-      if (mymessage.length == 1) {
+      if (myMessage.length == 1) {
         contentToReturn += "\nPlease set the Topic in following manner:\n--> Topic_name";
       }
 
-      mymessage.add({
+      myMessage.add({
         "role": "assistant",
         "content": contentToReturn,
       });
@@ -128,11 +123,11 @@ class ChatBotController extends GetxController {
 
   Future<dynamic> gptAPICall(List<Map<String, String>> messageQueue) async {
     var url = Uri.parse(AppUrl.chatUrl);
-    log('Sending: $mymessage');
+    log('Sending: $myMessage');
 
     Map<String, dynamic> body = {
       "model": "gpt-3.5-turbo",
-      "messages": mymessage,
+      "messages": myMessage,
       "max_tokens": 60,
       "temperature": 0.6,
     };
@@ -145,15 +140,33 @@ class ChatBotController extends GetxController {
 
   // end chatbot code
 
-  // language controler code
+  /// Bhashini Api integration
 
   RxBool languageLoader = RxBool(false);
   Rxn<LanguageModels?> languages = Rxn<LanguageModels>();
-  List<String> sourceLanguages = [];
   RxnString sourceLang = RxnString();
-  RxnString targetLang = RxnString();
   int selectedSourceLangIndex = -1;
-  int selectedTargetLangIndex = -1;
+  Rxn<TransliterationModels?> transliterationModels = Rxn<TransliterationModels>();
+  String transliterationModelsId = "";
+  String transliterationInput = "";
+  Rxn<TransliterationResponse?> hints = Rxn<TransliterationResponse>();
+  Rxn<TranslationResponse?> translatedResponse = Rxn<TranslationResponse>();
+  String botInput = '';
+  String computeUrl = '';
+  String computeApiKey = '';
+  String computeApiValue = '';
+  String translationInput = '';
+  String translationId = '';
+  String asrServiceId = '';
+  String ttsId = '';
+  String responseToOutputTranslationId = '';
+  bool isMicPermissionGranted = false;
+  final VoiceRecorder _voiceRecorder = VoiceRecorder();
+  int samplingRate = 8000;
+  RxBool recordingOngoing = RxBool(false);
+  String encodedAudio = '';
+  String recordedAudioPath = '';
+  Rxn<AsrResponse?> asrResponse = Rxn<AsrResponse?>();
 
   Future<void> getLanguages() async {
     languageLoader.value = true;
@@ -161,9 +174,6 @@ class ChatBotController extends GetxController {
     if (response != null) {
       languages.value = response;
     }
-    // else {
-    //   await showSnackBar();
-    // }
     languageLoader.value = false;
   }
 
@@ -171,27 +181,26 @@ class ChatBotController extends GetxController {
       .firstWhere((element) => element.key == code, orElse: () => MapEntry('', code))
       .value;
 
-  //end language controoler code
-
-  /// Bhashini Api integration
-
-  Rxn<TransliterationModels?> transliterationModels = Rxn<TransliterationModels>();
-  String transliterationModelsId = "";
-  String transliterationInput = "";
-  Rxn<TransliterationResponse?> hints = Rxn<TransliterationResponse>();
-  Rxn<TranslationResponse?> translatedResponse = Rxn<TranslationResponse>();
-  String botInput = '';
-  String computeTranslationUrl = '';
-  String computeApiKey = '';
-  String computeApiValue = '';
-  String translationInput = '';
-  String translationId = '';
-
   void computeApiData() {
-    computeTranslationUrl = languages.value?.pipelineInferenceAPIEndPoint?.callbackUrl ?? '';
+    computeUrl = languages.value?.pipelineInferenceAPIEndPoint?.callbackUrl ?? '';
     computeApiKey = languages.value?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.name ?? '';
     computeApiValue = languages.value?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value ?? '';
     BhashiniCalls.instance.generateComputeHeader(computeApiKey, computeApiValue);
+  }
+
+  void getAsrAndTtsServiceId(){
+    asrServiceId = languages.value?.pipelineResponseConfig
+        ?.firstWhere((element) => element.taskType == 'asr')
+        .config
+        ?.firstWhere((e) => e.language?.sourceLanguage?.contains(sourceLang) ?? false)
+        .serviceId ??
+        "";
+    ttsId = languages.value?.pipelineResponseConfig
+        ?.firstWhere((element) => element.taskType == 'tts')
+        .config
+        ?.firstWhere((e) => (e.language?.sourceLanguage?.contains(sourceLang) ?? false))
+        .serviceId ??
+        "";
   }
 
   void getTranslationId() {
@@ -245,9 +254,18 @@ class ChatBotController extends GetxController {
     transliterationInput = chatController.text.substring(index);
   }
 
+  Future<void> computeAsr() async{
+    AsrResponse? response = await BhashiniCalls.instance.computeAsr(computeUrl, sourceLang.value??'', asrServiceId, encodedAudio);
+    if(response != null){
+      asrResponse.value = response;
+    }
+    chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+    encodedAudio = '';
+  }
+
   Future<String> computeTranslation(String input,String serviceId,String source,String target) async {
     TranslationResponse? response = await BhashiniCalls.instance
-        .computeTranslation(computeTranslationUrl, source , target, input, serviceId);
+        .computeTranslation(computeUrl, source , target, input, serviceId);
     if (response != null) {
       translatedResponse.value = response;
     }
@@ -262,6 +280,22 @@ class ChatBotController extends GetxController {
         (e.language?.targetLanguage?.contains(sourceLang.value ?? '') ?? false)))
         .serviceId ??
         "";
+  }
+
+  Future<void> startRecording() async {
+    await PermissionHandler.requestPermissions().then((result) {
+      isMicPermissionGranted = result;
+    });
+    if (isMicPermissionGranted) {
+      recordingOngoing.value = true;
+      await _voiceRecorder.startRecordingVoice(samplingRate);
+    }
+  }
+
+  Future<void> stopRecordingAndGetResult() async {
+    recordingOngoing.value = false;
+    encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
+    recordedAudioPath = _voiceRecorder.getAudioFilePath()??'';
   }
 
   @override
