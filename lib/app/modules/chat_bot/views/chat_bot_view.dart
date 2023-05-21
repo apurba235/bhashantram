@@ -136,7 +136,8 @@ class ChatBotView extends GetView<ChatBotController> {
                                                                     .sourceLanguage ??
                                                                 '',
                                                           ),
-                                                          style: const TextStyle(color: ColorConsts.blueColor, fontSize: 16),
+                                                          style: const TextStyle(
+                                                              color: ColorConsts.blueColor, fontSize: 16),
                                                         ),
                                                       ),
                                                     ),
@@ -457,11 +458,17 @@ class ChatBotView extends GetView<ChatBotController> {
           }),
           IconButton(
             onPressed: (controller.sourceLang.value?.isNotEmpty ?? false)
-                ? () {
-                    controller.sendMessage();
-                    FocusManager.instance.primaryFocus?.unfocus();
+                ? () async {
+                    if (controller.chatController.text.isNotEmpty) {
+                      await controller.sendMessage();
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    }else{
+                      showSnackBar('hsdfjchvsd');
+                    }
                   }
-                : null,
+                : () {
+                    log(controller.chatController.text.isNotEmpty.toString(), name: 'inputBOT');
+                  },
             icon: const Icon(Icons.send, color: ColorConsts.blueColor),
           ),
         ],

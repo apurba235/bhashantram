@@ -290,6 +290,8 @@ class ChatBotController extends GetxController {
     }
     if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
       chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+    }else{
+      recordedAudioPath = '';
     }
     encodedAudio = '';
     asrOngoing.value = false;
