@@ -21,10 +21,10 @@ class ChatBotView extends GetView<ChatBotController> {
     return Obx(() {
       return controller.languageLoader.value
           ? const Scaffold(
-            body: Center(
+              body: Center(
                 child: CircularProgressIndicator(),
               ),
-          )
+            )
           : Scaffold(
               appBar: AppBar(
                 backgroundColor: ColorConsts.whiteColor,
@@ -323,6 +323,31 @@ class ChatBotView extends GetView<ChatBotController> {
                         ),
                       );
                     }),
+                    Obx(() {
+                      return controller.asrOngoing.value
+                          ? Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                height: 50,
+                                width: 200,
+                                margin: const EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: const BoxDecoration(
+                                  color: ColorConsts.blueColor,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    bottomRight: Radius.circular(12),
+                                    bottomLeft: Radius.circular(12),
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: ColorConsts.whiteColor,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    }),
                     if (controller.isLoad.value) const ThreeDots(),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -407,27 +432,38 @@ class ChatBotView extends GetView<ChatBotController> {
           })),
           Obx(() {
             return MicroPhone(
-              onTapMic: (ongoing) {
-                log('started ');
-                controller.startRecording();
-              },
-              onTapCancel: () async {
-                log('stopped');
-                await controller.stopRecordingAndGetResult();
-                await controller.computeAsr();
-                await controller.sendMessage();
-              },
+              onTapMic: (controller.sourceLang.value?.isNotEmpty ?? false)
+                  ? (ongoing) {
+                      log('started ');
+                      controller.startRecording();
+                    }
+                  : (o) => showSnackBar('Please select your preferred language'),
+              onTapCancel: (controller.sourceLang.value?.isNotEmpty ?? false)
+                  ? () async {
+                      log('stopped');
+                      await controller.stopRecordingAndGetResult();
+                      await controller.computeAsr();
+                      if (controller.chatController.text.isNotEmpty) {
+                        await controller.sendMessage();
+                      } else {
+                        showSnackBar('Please speak properly');
+                      }
+                    }
+                  : () => showSnackBar('Please select your preferred language'),
               padding: const EdgeInsets.all(10),
               micHeight: 20,
               micColor: controller.recordingOngoing.value ? Colors.red : null,
             );
           }),
           IconButton(
-              onPressed: () {
-                controller.sendMessage();
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              icon: Image.asset(AssetConsts.send)),
+            onPressed: (controller.sourceLang.value?.isNotEmpty ?? false)
+                ? () {
+                    controller.sendMessage();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  }
+                : null,
+            icon: const Icon(Icons.send, color: ColorConsts.blueColor),
+          ),
         ],
       ),
     );

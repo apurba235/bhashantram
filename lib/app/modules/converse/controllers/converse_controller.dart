@@ -230,6 +230,9 @@ class ConverseController extends GetxController {
 
   @override
   void onInit() async {
+    await PermissionHandler.requestPermissions().then((result) {
+      isMicPermissionGranted = result;
+    });
     await getLanguages();
     computeApiData();
     await _voiceRecorder.clearOldRecordings();

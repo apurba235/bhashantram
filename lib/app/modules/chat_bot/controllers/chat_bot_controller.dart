@@ -193,6 +193,7 @@ class ChatBotController extends GetxController {
   final PlayerController _playerController = PlayerController();
   Rxn<TtsResponse?> ttsResponse = Rxn<TtsResponse>();
   String ttsFilePath = '';
+  RxBool asrOngoing = RxBool(false);
 
   Future<void> getLanguages() async {
     languageLoader.value = true;
@@ -281,13 +282,17 @@ class ChatBotController extends GetxController {
   }
 
   Future<void> computeAsr() async {
+    asrOngoing.value = true;
     AsrResponse? response =
         await BhashiniCalls.instance.computeAsr(computeUrl, sourceLang.value ?? '', asrServiceId, encodedAudio);
     if (response != null) {
       asrResponse.value = response;
     }
-    chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+    if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
+      chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+    }
     encodedAudio = '';
+    asrOngoing.value = false;
   }
 
   Future<String> computeTranslation(String input, String serviceId, String source, String target) async {
@@ -369,6 +374,9 @@ class ChatBotController extends GetxController {
 
   @override
   void onInit() async {
+    await PermissionHandler.requestPermissions().then((result) {
+      isMicPermissionGranted = result;
+    });
     await getLanguages();
     computeApiData();
     await getTransliterationModels();
@@ -384,5 +392,17 @@ class ChatBotController extends GetxController {
   @override
   void onClose() {
     super.onClose();
+  }
+
+  @override
+  InternalFinalCallback<void> get onDelete {
+     stopPlayer();
+    return super.onDelete;
+  }
+
+  @override
+  void dispose() async{
+    await stopPlayer();
+    super.dispose();
   }
 }
