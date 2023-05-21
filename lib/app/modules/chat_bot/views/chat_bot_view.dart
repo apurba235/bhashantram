@@ -136,7 +136,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                                                     .sourceLanguage ??
                                                                 '',
                                                           ),
-                                                          style: const TextStyle(color: ColorConsts.blueColor),
+                                                          style: const TextStyle(color: ColorConsts.blueColor, fontSize: 16),
                                                         ),
                                                       ),
                                                     ),

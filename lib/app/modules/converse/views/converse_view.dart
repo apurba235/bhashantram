@@ -81,6 +81,8 @@ class ConverseView extends GetView<ConverseController> {
                                                         sharePositionOrigin:
                                                             Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
                                                       );
+                                                    }else{
+                                                      showSnackBar('Nothing to share right now');
                                                     }
                                                   },
                                                   child: const Icon(Icons.share),
@@ -94,7 +96,8 @@ class ConverseView extends GetView<ConverseController> {
                                                           );
                                                           showSnackBar('Copied to clipboard');
                                                         }
-                                                      : null,
+                                                      : () =>
+                                                showSnackBar('Nothing to copy right now'),
                                                   child: const Icon(Icons.copy),
                                                 ),
                                               ],
@@ -105,6 +108,8 @@ class ConverseView extends GetView<ConverseController> {
                                                 onTap: () {
                                                   if (controller.inputAudioPath.isNotEmpty) {
                                                     controller.playRecordedAudio(controller.inputAudioPath, true);
+                                                  }else{
+                                                    showSnackBar('Nothing to play right now');
                                                   }
                                                 },
                                                 child: controller.inputAudioPlay.value
@@ -157,6 +162,8 @@ class ConverseView extends GetView<ConverseController> {
                                                       sharePositionOrigin:
                                                           Rect.fromLTWH(0, 0, Get.width, Get.height / 2),
                                                     );
+                                                  }else{
+                                                    showSnackBar('Nothing to share right now');
                                                   }
                                                 },
                                                 child: const Icon(Icons.share),
@@ -170,7 +177,8 @@ class ConverseView extends GetView<ConverseController> {
                                                         );
                                                         showSnackBar('Copied to clipboard');
                                                       }
-                                                    : null,
+                                                    : () =>
+                                              showSnackBar('Nothing to copy right now'),
                                                 child: const Icon(Icons.copy),
                                               ),
                                             ],
@@ -181,6 +189,8 @@ class ConverseView extends GetView<ConverseController> {
                                               onTap: () {
                                                 if (controller.outputAudioPath.isNotEmpty) {
                                                   controller.playRecordedAudio(controller.outputAudioPath, false);
+                                                }else{
+                                                  showSnackBar('Nothing to play right now');
                                                 }
                                               },
                                               child: controller.outputAudioPlay.value

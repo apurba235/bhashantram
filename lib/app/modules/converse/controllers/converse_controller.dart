@@ -161,6 +161,8 @@ class ConverseController extends GetxController {
         playRecordedAudio(outputAudioPath, false);
       }
     }else{
+      input.value = null;
+      output.value = null;
       showSnackBar('Response not received. Please speak properly.');
     }
   }
