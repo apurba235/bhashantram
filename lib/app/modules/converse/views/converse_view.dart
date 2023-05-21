@@ -59,12 +59,12 @@ class ConverseView extends GetView<ConverseController> {
                                           children: [
                                             Text(
                                               controller.getLanguageName(controller.sourceLang.value ?? 'Source'),
-                                              style: const TextStyle(color: ColorConsts.blueColor),
+                                              style: const TextStyle(color: ColorConsts.blueColor, fontSize: 18),
                                             ),
                                             const SizedBox(height: 12),
                                             Text(
                                               controller.input.value ?? 'Press mic to begin conversion',
-                                              style: const TextStyle(fontSize: 18, color: ColorConsts.blueColor),
+                                              style: const TextStyle(fontSize: 20, color: ColorConsts.blueColor),
                                             ),
                                             const SizedBox(height: 15),
                                           ],
@@ -83,7 +83,7 @@ class ConverseView extends GetView<ConverseController> {
                                                       );
                                                     }
                                                   },
-                                                  child: Image.asset(AssetConsts.share),
+                                                  child: const Icon(Icons.share),
                                                 ),
                                                 const SizedBox(width: 15),
                                                 GestureDetector(
@@ -95,7 +95,7 @@ class ConverseView extends GetView<ConverseController> {
                                                           showSnackBar('Copied to clipboard');
                                                         }
                                                       : null,
-                                                  child: Image.asset(AssetConsts.copy),
+                                                  child: const Icon(Icons.copy),
                                                 ),
                                               ],
                                             ),
@@ -108,8 +108,8 @@ class ConverseView extends GetView<ConverseController> {
                                                   }
                                                 },
                                                 child: controller.inputAudioPlay.value
-                                                    ? const Icon(Icons.pause_circle_outline_outlined)
-                                                    : Image.asset(AssetConsts.speaker),
+                                                    ? const Icon(Icons.pause_circle_outline_outlined, size: 30)
+                                                    : const Icon(Icons.play_circle_outlined, size: 30),
                                               );
                                             }),
                                           ],
@@ -135,12 +135,12 @@ class ConverseView extends GetView<ConverseController> {
                                             const SizedBox(height: 15),
                                             Text(
                                               controller.getLanguageName(controller.targetLang.value ?? 'Target'),
-                                              style: const TextStyle(color: ColorConsts.tomatoRed),
+                                              style: const TextStyle(color: ColorConsts.tomatoRed, fontSize: 18),
                                             ),
                                             const SizedBox(height: 12),
                                             Text(
                                               controller.output.value ?? 'Press mic to begin conversion',
-                                              style: const TextStyle(fontSize: 18, color: ColorConsts.tomatoRed),
+                                              style: const TextStyle(fontSize: 20, color: ColorConsts.tomatoRed),
                                             ),
                                           ],
                                         );
@@ -159,7 +159,7 @@ class ConverseView extends GetView<ConverseController> {
                                                     );
                                                   }
                                                 },
-                                                child: Image.asset(AssetConsts.share),
+                                                child: const Icon(Icons.share),
                                               ),
                                               const SizedBox(width: 15),
                                               GestureDetector(
@@ -171,7 +171,7 @@ class ConverseView extends GetView<ConverseController> {
                                                         showSnackBar('Copied to clipboard');
                                                       }
                                                     : null,
-                                                child: Image.asset(AssetConsts.copy),
+                                                child: const Icon(Icons.copy),
                                               ),
                                             ],
                                           ),
@@ -184,8 +184,8 @@ class ConverseView extends GetView<ConverseController> {
                                                 }
                                               },
                                               child: controller.outputAudioPlay.value
-                                                  ? const Icon(Icons.pause_circle_outline_outlined)
-                                                  : Image.asset(AssetConsts.speaker),
+                                                  ? const Icon(Icons.pause_circle_outline_outlined,size: 30)
+                                                  : const Icon(Icons.play_circle_outlined,size: 30),
                                             );
                                           }),
                                         ],
@@ -201,8 +201,10 @@ class ConverseView extends GetView<ConverseController> {
                       const SizedBox(height: 20),
                       Obx(() {
                         return Stack(
+                          alignment: Alignment.center,
                           children: [
-                            if (controller.recordingOngoing.value) Lottie.asset(AssetConsts.recording, repeat: true),
+                            if (controller.recordingOngoing.value)
+                              SizedBox(height: 70, child: Lottie.asset(AssetConsts.recording, repeat: true)),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
@@ -226,6 +228,7 @@ class ConverseView extends GetView<ConverseController> {
                                             controller.computeAsrTranslationTts();
                                           }
                                         : null,
+                                    micHeight: 35,
                                   ),
                                 )
                               ],
@@ -298,7 +301,8 @@ class ConverseView extends GetView<ConverseController> {
                                                                             .sourceLanguage ??
                                                                         '',
                                                                   ),
-                                                                  style: const TextStyle(color: ColorConsts.blueColor),
+                                                                  textAlign: TextAlign.center,
+                                                                  style: const TextStyle(color: ColorConsts.blueColor, fontSize: 16),
                                                                 ),
                                                               ),
                                                             ),
@@ -385,8 +389,9 @@ class ConverseView extends GetView<ConverseController> {
                                                                                 .targetLanguageList?[index] ??
                                                                             '',
                                                                       ),
+                                                                      textAlign: TextAlign.center,
                                                                       style:
-                                                                          const TextStyle(color: ColorConsts.blueColor),
+                                                                          const TextStyle(color: ColorConsts.blueColor, fontSize: 18),
                                                                     ),
                                                                   ),
                                                                 ),

@@ -25,7 +25,7 @@ class AppBottomSheet extends StatelessWidget {
           const Center(
               child: Text(
             "Select Language",
-            style: TextStyle(fontSize: 16, color: ColorConsts.blueColor),
+            style: TextStyle(fontSize: 18, color: ColorConsts.blueColor),
           )),
        customWidget !=null?   Expanded(child: customWidget!) :
               SizedBox(

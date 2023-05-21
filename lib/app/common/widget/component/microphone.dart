@@ -28,7 +28,7 @@ class MicroPhone extends StatelessWidget {
       },
       onTapCancel: onTapCancel,
       child: Container(
-        padding: padding ?? const EdgeInsets.all(25),
+        padding: padding ?? const EdgeInsets.all(18),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: micColor?.withOpacity(0.3) ?? ColorConsts.blueColor.withOpacity(0.3),

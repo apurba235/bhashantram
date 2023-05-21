@@ -18,14 +18,13 @@ import '../../../data/network_models/transliteration_models.dart';
 import '../../../data/network_models/transliteration_response.dart';
 import '../../../data/network_models/tts_models.dart';
 import '../../../data/ui_models/chat_model.dart';
-import '../views/chat_message.dart';
 import 'package:http/http.dart' as http;
 
 class ChatBotController extends GetxController {
   // chatbot code
   TextEditingController chatController = TextEditingController();
   String apiKey = AppUrl.chatApikey;
-  Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
+  // Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
   Rx<List<ChatModel>> conversations = Rx<List<ChatModel>>([]);
   final String reasonToStop = 'stop';
   late String check = "-->";

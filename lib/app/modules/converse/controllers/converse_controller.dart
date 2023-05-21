@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:bhashantram/app/common/widget/widget.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -25,7 +26,7 @@ class ConverseController extends GetxController {
   int selectedTargetLangIndex = -1;
   bool isMicPermissionGranted = false;
   final VoiceRecorder _voiceRecorder = VoiceRecorder();
-  int samplingRate = 8000;
+  int samplingRate = 16000;
   RxBool recordingOngoing = RxBool(false);
   String encodedAudio = '';
   String ttsFilePath = '';
@@ -112,51 +113,55 @@ class ConverseController extends GetxController {
       asrTranslationTts.value = response;
     }
     languageLoader.value = false;
-    if (fromTarget) {
-      input.value = asrTranslationTts.value?.pipelineResponse
-              ?.firstWhere((element) => element.taskType == 'translation')
-              .output
-              ?.first
-              .target ??
-          '';
-      output.value = asrTranslationTts.value?.pipelineResponse
-              ?.firstWhere((element) => element.taskType == 'translation')
-              .output
-              ?.first
-              .source ??
-          '';
-      String generatedAudio = asrTranslationTts.value?.pipelineResponse
-          ?.firstWhere((element) => element.taskType == 'tts')
-          .audio
-          ?.first
-          .audioContent ??
-          '';
-      await writeTTsAudio(generatedAudio, true);
-      outputAudioPath = recordedAudioPath;
-      log(inputAudioPath, name: 'input');
-      playRecordedAudio(inputAudioPath, true);
-    } else {
-      output.value = asrTranslationTts.value?.pipelineResponse
-              ?.firstWhere((element) => element.taskType == 'translation')
-              .output
-              ?.first
-              .target ??
-          '';
-      input.value = asrTranslationTts.value?.pipelineResponse
-              ?.firstWhere((element) => element.taskType == 'translation')
-              .output
-              ?.first
-              .source ??
-          '';
-      String generatedAudio = asrTranslationTts.value?.pipelineResponse
-          ?.firstWhere((element) => element.taskType == 'tts')
-          .audio
-          ?.first
-          .audioContent ??
-          '';
-      await writeTTsAudio(generatedAudio, false);
-      inputAudioPath = recordedAudioPath;
-      playRecordedAudio(outputAudioPath, false);
+    if(asrTranslationTts.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
+      if (fromTarget) {
+        input.value = asrTranslationTts.value?.pipelineResponse
+            ?.firstWhere((element) => element.taskType == 'translation')
+            .output
+            ?.first
+            .target ??
+            '';
+        output.value = asrTranslationTts.value?.pipelineResponse
+            ?.firstWhere((element) => element.taskType == 'translation')
+            .output
+            ?.first
+            .source ??
+            '';
+        String generatedAudio = asrTranslationTts.value?.pipelineResponse
+            ?.firstWhere((element) => element.taskType == 'tts')
+            .audio
+            ?.first
+            .audioContent ??
+            '';
+        await writeTTsAudio(generatedAudio, true);
+        outputAudioPath = recordedAudioPath;
+        log(inputAudioPath, name: 'input');
+        playRecordedAudio(inputAudioPath, true);
+      } else {
+        output.value = asrTranslationTts.value?.pipelineResponse
+            ?.firstWhere((element) => element.taskType == 'translation')
+            .output
+            ?.first
+            .target ??
+            '';
+        input.value = asrTranslationTts.value?.pipelineResponse
+            ?.firstWhere((element) => element.taskType == 'translation')
+            .output
+            ?.first
+            .source ??
+            '';
+        String generatedAudio = asrTranslationTts.value?.pipelineResponse
+            ?.firstWhere((element) => element.taskType == 'tts')
+            .audio
+            ?.first
+            .audioContent ??
+            '';
+        await writeTTsAudio(generatedAudio, false);
+        inputAudioPath = recordedAudioPath;
+        playRecordedAudio(outputAudioPath, false);
+      }
+    }else{
+      showSnackBar('Response not received. Please speak properly.');
     }
   }
 
