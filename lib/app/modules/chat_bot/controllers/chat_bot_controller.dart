@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:bhashantram/app/common/widget/snackbar/custom_snackbar.dart';
 import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -27,16 +28,18 @@ class ChatBotController extends GetxController {
   // Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
   Rx<List<ChatModel>> conversations = Rx<List<ChatModel>>([]);
   final String reasonToStop = 'stop';
-  late String check = "-->";
+  // late String check = "-->";
   RxBool isLoad = RxBool(false);
   RxBool isLoading = false.obs;
   int previousPlayingIndex = -1;
   ScrollController languageScroll = ScrollController();
 
-  Future<void> sendMessage() async {
+  Future<void> sendMessage([bool triggerPoint = false]) async {
     isLoad.value = true;
+    String workingInput = chatController.text;
+    chatController.clear();
     ChatModel newMessage = ChatModel(
-      message: chatController.text,
+      message: workingInput,
       userType: "user",
       audioPath: recordedAudioPath.isNotEmpty ? recordedAudioPath : null,
       isPlaying: false.obs,
@@ -52,25 +55,26 @@ class ChatBotController extends GetxController {
     // chats.value.insert(0, message);
     // chats.refresh();
     conversations.refresh();
-    bool checkTrue = false;
-    if (chatController.text.contains(check)) {
-      checkTrue = true;
-    } else {
-      checkTrue = false;
-    }
+    // bool checkTrue = false;
+    // if (chatController.text.contains(check)) {
+    // if (triggerPoint) {
+    //   checkTrue = true;
+    // } else {
+    //   checkTrue = false;
+    // }
     if (translationId.isNotEmpty) {
-      botInput = await computeTranslation(chatController.text, translationId, sourceLang.value ?? "", "en");
+      botInput = await computeTranslation(workingInput, translationId, sourceLang.value ?? "", "en");
     } else {
       botInput = newMessage.message;
     }
 
     // log(chats.value.first.text, name: "check");
-    chatController.clear();
-    if (checkTrue) {
-      botInput = '$check $botInput';
-    }
+    // chatController.clear();
+    // if (checkTrue) {
+    //   botInput =  botInput;
+    // }
     String response = "";
-    response = await sendMessageToGpt(botInput);
+    response = await sendMessageToGpt(botInput, triggerPoint);
     if (responseToOutputTranslationId.isNotEmpty) {
       response = await computeTranslation(response, responseToOutputTranslationId, "en", sourceLang.value ?? "");
     }
@@ -87,8 +91,8 @@ class ChatBotController extends GetxController {
   final List<Map<String, String>> myMessage = [];
   final List<String> finalList = [];
 
-  Future sendMessageToGpt(String message) async {
-    if (message.contains(check)) {
+  Future sendMessageToGpt(String message, [bool isTriggered = false]) async {
+    if (isTriggered) {
       myMessage.clear();
       myMessage.add({
         "role": "system",
@@ -173,7 +177,9 @@ class ChatBotController extends GetxController {
   Rxn<TransliterationModels?> transliterationModels = Rxn<TransliterationModels>();
   String transliterationModelsId = "";
   String transliterationInput = "";
+  String topicTransliterationInput = "";
   Rxn<TransliterationResponse?> hints = Rxn<TransliterationResponse>();
+  Rxn<TransliterationResponse?> topicHints = Rxn<TransliterationResponse>();
   Rxn<TranslationResponse?> translatedResponse = Rxn<TranslationResponse>();
   String botInput = '';
   String computeUrl = '';
@@ -188,13 +194,18 @@ class ChatBotController extends GetxController {
   final VoiceRecorder _voiceRecorder = VoiceRecorder();
   int samplingRate = 8000;
   RxBool recordingOngoing = RxBool(false);
+  RxBool topicRecordingOngoing = RxBool(false);
   String encodedAudio = '';
+  String topicEncodedAudio = '';
   String recordedAudioPath = '';
   Rxn<AsrResponse?> asrResponse = Rxn<AsrResponse?>();
   final PlayerController _playerController = PlayerController();
   Rxn<TtsResponse?> ttsResponse = Rxn<TtsResponse>();
   String ttsFilePath = '';
   RxBool asrOngoing = RxBool(false);
+  RxBool topicAsrOngoing = RxBool(false);
+  RxnString topicName = RxnString();
+  TextEditingController topicController = TextEditingController();
 
   Future<void> getLanguages() async {
     languageLoader.value = true;
@@ -248,15 +259,19 @@ class ChatBotController extends GetxController {
     }
   }
 
-  Future<void> computeTransliteration() async {
+  Future<void> computeTransliteration([bool fromTopic = false]) async {
     TransliterationResponse? response =
-        await BhashiniCalls.instance.computeTransliteration(transliterationModelsId, transliterationInput);
+        await BhashiniCalls.instance.computeTransliteration(transliterationModelsId, fromTopic ? topicTransliterationInput :transliterationInput);
     if (response != null) {
-      hints.value = response;
+      if(fromTopic){
+        topicHints.value = response;
+      }else{
+        hints.value = response;
+      }
     }
-    hints.value?.output?.first.target?.forEach((element) {
-      log(element, name: 'Hints');
-    });
+    // hints.value?.output?.first.target?.forEach((element) {
+    //   log(element, name: 'Hints');
+    // });
   }
 
   void getTransliterationModelId() {
@@ -271,31 +286,60 @@ class ChatBotController extends GetxController {
     log(transliterationModelsId, name: 'Transliteration Model Id');
   }
 
-  void getTransliterationInput() {
+  void getTransliterationInput([bool fromTopic = false, String topicInput = '']) {
     int index = 0;
-    for (int i = chatController.text.length - 1; i >= 0; i--) {
-      if (chatController.text[i].contains(RegExp('[^A-Za-z]'))) {
-        index = i + 1;
-        break;
+    if(fromTopic){
+      for (int i = topicInput.length - 1; i >= 0; i--) {
+        if (topicInput[i].contains(RegExp('[^A-Za-z]'))) {
+          index = i + 1;
+          break;
+        }
       }
+      topicTransliterationInput = topicInput.substring(index);
+    }else{
+      for (int i = chatController.text.length - 1; i >= 0; i--) {
+        if (chatController.text[i].contains(RegExp('[^A-Za-z]'))) {
+          index = i + 1;
+          break;
+        }
+      }
+      transliterationInput = chatController.text.substring(index);
     }
-    transliterationInput = chatController.text.substring(index);
   }
 
-  Future<void> computeAsr() async {
-    asrOngoing.value = true;
+  Future<void> computeAsr([bool fromDialog = false]) async {
+    if(fromDialog){
+      topicAsrOngoing.value = true;
+    }else{
+      asrOngoing.value = true;
+    }
+    String workingAudio = fromDialog ? topicEncodedAudio : encodedAudio;
     AsrResponse? response =
-        await BhashiniCalls.instance.computeAsr(computeUrl, sourceLang.value ?? '', asrServiceId, encodedAudio);
+        await BhashiniCalls.instance.computeAsr(computeUrl, sourceLang.value ?? '', asrServiceId, workingAudio);
     if (response != null) {
       asrResponse.value = response;
     }
-    if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
-      chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+    if(fromDialog){
+      if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
+        topicName.value = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+      }else{
+        showSnackBar('Please speak properly');
+      }
     }else{
-      recordedAudioPath = '';
+      if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
+        chatController.text = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+      }else{
+        recordedAudioPath = '';
+      }
     }
-    encodedAudio = '';
-    asrOngoing.value = false;
+
+    if(fromDialog){
+      topicEncodedAudio = '';
+      topicAsrOngoing.value = false;
+    }else{
+      encodedAudio = '';
+      asrOngoing.value = false;
+    }
   }
 
   Future<String> computeTranslation(String input, String serviceId, String source, String target) async {
@@ -317,20 +361,29 @@ class ChatBotController extends GetxController {
         "";
   }
 
-  Future<void> startRecording() async {
+  Future<void> startRecording([bool fromDialog = false]) async {
     await PermissionHandler.requestPermissions().then((result) {
       isMicPermissionGranted = result;
     });
     if (isMicPermissionGranted) {
-      recordingOngoing.value = true;
+      if(fromDialog){
+        topicRecordingOngoing.value = true;
+      }else{
+        recordingOngoing.value = true;
+      }
       await _voiceRecorder.startRecordingVoice(samplingRate);
     }
   }
 
-  Future<void> stopRecordingAndGetResult() async {
-    recordingOngoing.value = false;
-    encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
-    recordedAudioPath = _voiceRecorder.getAudioFilePath() ?? '';
+  Future<void> stopRecordingAndGetResult([bool fromDialog = false]) async {
+    if(fromDialog){
+      topicEncodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
+      topicRecordingOngoing.value = false;
+    }else{
+      recordingOngoing.value = false;
+      encodedAudio = await _voiceRecorder.stopRecordingVoiceAndGetOutput() ?? '';
+      recordedAudioPath = _voiceRecorder.getAudioFilePath() ?? '';
+    }
   }
 
   Future<void> playRecordedAudio(String filePath) async {

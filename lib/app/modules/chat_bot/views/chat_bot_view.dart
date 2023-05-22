@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../../common/consts/color_consts.dart';
 import '../../../common/widget/bottomsheet/bottomsheet.dart';
 import '../../../common/widget/component/microphone.dart';
@@ -67,15 +68,168 @@ class ChatBotView extends GetView<ChatBotController> {
                       ),
                       Flexible(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: (controller.sourceLang.value?.isNotEmpty ?? false)
+                              ? () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      String temp = '';
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                        content: SizedBox(
+                                          width: double.maxFinite,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (controller.transliterationModelsId.isNotEmpty)
+                                                Obx(() {
+                                                  return SingleChildScrollView(
+                                                    scrollDirection: Axis.horizontal,
+                                                    child: SizedBox(
+                                                      height: 50,
+                                                      child: Row(
+                                                        children: [
+                                                          ...List.generate(
+                                                              controller
+                                                                      .topicHints.value?.output?.first.target?.length ??
+                                                                  0, (index) {
+                                                            final data = controller
+                                                                    .topicHints.value?.output?.first.target?[index] ??
+                                                                '';
+                                                            return GestureDetector(
+                                                              onTap: () {
+                                                                String temp = controller.topicController.text;
+                                                                String output =
+                                                                    temp.replaceAll(RegExp('[A-Za-z]'), '').trim();
+                                                                controller.topicController.text = '$output $data ';
+                                                                controller.topicController.selection =
+                                                                    TextSelection.fromPosition(
+                                                                  TextPosition(
+                                                                      offset: controller.topicController.text.length),
+                                                                );
+                                                                controller.topicHints.value = null;
+                                                              },
+                                                              child: Container(
+                                                                  margin: const EdgeInsets.only(
+                                                                      bottom: 10, right: 10, left: 10),
+                                                                  padding: const EdgeInsets.symmetric(
+                                                                      horizontal: 20, vertical: 10),
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius: BorderRadius.circular(10),
+                                                                      color: ColorConsts.greenColor.withOpacity(0.3)),
+                                                                  child: Text(data)),
+                                                            );
+                                                          })
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                              const SizedBox(height: 20),
+                                              TextField(
+                                                controller: controller.topicController,
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(
+                                                    borderSide: const BorderSide(color: ColorConsts.blackColor),
+                                                    borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  hintText: 'Please enter your topic..',
+                                                ),
+                                                onChanged: (value) {
+                                                  temp = value;
+                                                  if (controller.sourceLang.value != 'en') {
+                                                    controller.getTransliterationInput(true, temp);
+                                                    if (!(temp[temp.length - 1].contains(RegExp('[^A-Za-z]')))) {
+                                                      controller.computeTransliteration(true);
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                              const SizedBox(height: 20),
+                                              const Text('OR'),
+                                              const SizedBox(height: 20),
+                                              Obx(() {
+                                                return controller.topicAsrOngoing.value
+                                                    ? const SizedBox(
+                                                        height: 60,
+                                                        child: Center(
+                                                          child: CircularProgressIndicator(),
+                                                        ),
+                                                      )
+                                                    : Obx(() {
+                                                        return Stack(
+                                                          alignment: Alignment.center,
+                                                          children: [
+                                                            if (controller.topicRecordingOngoing.value)
+                                                              SizedBox(
+                                                                height: 50,
+                                                                child: Lottie.asset(AssetConsts.recording),
+                                                              ),
+                                                            MicroPhone(
+                                                              onTapMic: (f) {
+                                                                HapticFeedback.vibrate();
+                                                                controller.startRecording(true);
+                                                              },
+                                                              onTapCancel: () async {
+                                                                await controller.stopRecordingAndGetResult(true);
+                                                                await controller.computeAsr(true);
+                                                              },
+                                                              micColor: controller.topicRecordingOngoing.value
+                                                                  ? ColorConsts.tomatoRed
+                                                                  : null,
+                                                            ),
+                                                          ],
+                                                        );
+                                                      });
+                                              }),
+                                              const SizedBox(height: 20),
+                                              Obx(() {
+                                                return Text(
+                                                  controller.topicName.value ?? 'Speak',
+                                                  style: const TextStyle(fontSize: 25),
+                                                );
+                                              }),
+                                              const SizedBox(height: 20),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    if (controller.topicName.value?.isNotEmpty ?? false) {
+                                                      controller.chatController.text = controller.topicName.value ?? '';
+                                                      controller.sendMessage(true);
+                                                      Get.back();
+                                                    } else {
+                                                      if(temp.isNotEmpty){
+                                                        controller.topicName.value = controller.topicController.text;
+                                                        controller.chatController.text = controller.topicName.value ?? '';
+                                                        controller.sendMessage(true);
+                                                        Get.back();
+                                                      }else{
+                                                        showSnackBar('Please enter topic');
+                                                      }
+                                                    }
+                                                  },
+                                                  child: const Text('Set Topic'))
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              : () => showSnackBar('Please select your preferred language first.'),
                           style: TextButton.styleFrom(
-                            backgroundColor: ColorConsts.greenColor.withOpacity(0.4),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20)
-                          ),
-                          child: const Text('Enter Topic', style: TextStyle(color: ColorConsts.blackColor, overflow: TextOverflow.ellipsis),),
+                              backgroundColor: ColorConsts.greenColor.withOpacity(0.4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 20)),
+                          child: Obx(() {
+                            return Text(
+                              controller.topicName.value ?? 'Enter Topic',
+                              style: const TextStyle(color: ColorConsts.blackColor, overflow: TextOverflow.ellipsis),
+                            );
+                          }),
                         ),
                       ),
                       Obx(() {
@@ -86,7 +240,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      (controller.getLanguageName(controller.sourceLang.value ?? 'Language nvjvjhv vjhh hbkkkj')),
+                                      (controller.getLanguageName(controller.sourceLang.value ?? 'Language')),
                                       style: const TextStyle(color: ColorConsts.blackColor),
                                     ),
                                   ),
@@ -102,6 +256,8 @@ class ChatBotView extends GetView<ChatBotController> {
                                       } else {
                                         controller.transliterationModelsId = "";
                                       }
+                                      controller.topicName.value = null;
+                                      controller.topicController.clear();
                                       Get.back();
                                     },
                                     selectButtonColor: (controller.sourceLang.value != null)
@@ -134,8 +290,8 @@ class ChatBotView extends GetView<ChatBotController> {
                                                       children: [
                                                         GestureDetector(
                                                           onTap: () {
-                                                            controller.sourceLang.value = controller
-                                                                    .languages.value?.languages?[index].sourceLanguage ??
+                                                            controller.sourceLang.value = controller.languages.value
+                                                                    ?.languages?[index].sourceLanguage ??
                                                                 '';
                                                             controller.getAsrAndTtsServiceId();
                                                             if (controller.sourceLang.value != 'en') {
@@ -442,12 +598,15 @@ class ChatBotView extends GetView<ChatBotController> {
             return TextField(
               onTap: () {
                 if (controller.sourceLang.value?.isNotEmpty ?? false) {
-                  return;
+                  if ((controller.topicName.value?.isNotEmpty ?? false)) {
+                  } else {
+                    log('Please enter topic first');
+                  }
                 } else {
                   showSnackBar('Please select source language first.');
                 }
               },
-              readOnly: controller.isLoading.value ? false : true,
+              readOnly: (controller.topicName.value?.isNotEmpty ?? false) ? false : true,
               autofocus: false,
               controller: controller.chatController,
               decoration: InputDecoration.collapsed(
@@ -469,14 +628,14 @@ class ChatBotView extends GetView<ChatBotController> {
           })),
           Obx(() {
             return MicroPhone(
-              onTapMic: (controller.sourceLang.value?.isNotEmpty ?? false)
+              onTapMic: (controller.topicName.value?.isNotEmpty ?? false)
                   ? (ongoing) {
                       log('started ');
                       HapticFeedback.vibrate();
                       controller.startRecording();
                     }
-                  : (o) => showSnackBar('Please select your preferred language'),
-              onTapCancel: (controller.sourceLang.value?.isNotEmpty ?? false)
+                  : (o) => showSnackBar('Please enter your topic first'),
+              onTapCancel: (controller.topicName.value?.isNotEmpty ?? false)
                   ? () async {
                       log('stopped');
                       await controller.stopRecordingAndGetResult();
@@ -487,14 +646,14 @@ class ChatBotView extends GetView<ChatBotController> {
                         showSnackBar('Please speak properly');
                       }
                     }
-                  : () => showSnackBar('Please select your preferred language'),
+                  : () => showSnackBar('Please enter your topic first'),
               padding: const EdgeInsets.all(10),
               micHeight: 20,
               micColor: controller.recordingOngoing.value ? Colors.red : null,
             );
           }),
           IconButton(
-            onPressed: (controller.sourceLang.value?.isNotEmpty ?? false)
+            onPressed: (controller.topicName.value?.isNotEmpty ?? false)
                 ? () async {
                     if (controller.chatController.text.isNotEmpty) {
                       controller.hints.value = null;
