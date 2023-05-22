@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:bhashantram/app/common/consts/asset_consts.dart';
 import 'package:bhashantram/app/modules/chat_bot/views/response_animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:get/get.dart';
@@ -417,9 +418,12 @@ class ChatBotView extends GetView<ChatBotController> {
               readOnly: controller.isLoading.value ? false : true,
               autofocus: false,
               controller: controller.chatController,
-              decoration: const InputDecoration.collapsed(
-                hintText: "Hello ChatGPT!",
-                hintStyle: TextStyle(fontSize: 16, color: ColorConsts.blueColor),
+              decoration: InputDecoration.collapsed(
+                hintText: controller.recordingOngoing.value ? "Recording.." : "Hello ChatGPT!",
+                hintStyle: TextStyle(
+                  fontSize: 16,
+                  color: controller.recordingOngoing.value ? ColorConsts.tomatoRed : ColorConsts.blueColor,
+                ),
               ),
               onChanged: (v) {
                 controller.getTransliterationInput();
@@ -436,6 +440,7 @@ class ChatBotView extends GetView<ChatBotController> {
               onTapMic: (controller.sourceLang.value?.isNotEmpty ?? false)
                   ? (ongoing) {
                       log('started ');
+                      HapticFeedback.vibrate();
                       controller.startRecording();
                     }
                   : (o) => showSnackBar('Please select your preferred language'),
