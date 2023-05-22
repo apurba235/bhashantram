@@ -9,7 +9,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../common/consts/color_consts.dart';
 import '../../../common/widget/bottomsheet/bottomsheet.dart';
-import '../../../common/widget/buttons/language_button.dart';
 import '../../../common/widget/component/microphone.dart';
 import '../../../common/widget/snackbar/custom_snackbar.dart';
 import '../controllers/chat_bot_controller.dart';
@@ -66,9 +65,18 @@ class ChatBotView extends GetView<ChatBotController> {
                       ],
                     ),
                     Obx(() {
-                      return LanguageButton(
-                          languageName: (controller.getLanguageName(controller.sourceLang.value ?? 'Language')),
-                          onTapButton: () {
+                      return GestureDetector(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                (controller.getLanguageName(controller.sourceLang.value ?? 'Language')),
+                                style: const TextStyle(color: ColorConsts.blackColor),
+                              ),
+                              const Icon(Icons.arrow_drop_down, color: ColorConsts.blackColor)
+                            ],
+                          ),
+                          onTap: () {
                             Get.bottomSheet(isDismissible: false, Obx(() {
                               return AppBottomSheet(
                                 onTapSelect: () {
