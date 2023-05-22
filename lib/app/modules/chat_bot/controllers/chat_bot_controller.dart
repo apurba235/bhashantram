@@ -322,6 +322,7 @@ class ChatBotController extends GetxController {
     if(fromDialog){
       if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
         topicName.value = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
+        topicController.text = topicName.value ?? '';
       }else{
         showSnackBar('Please speak properly');
       }

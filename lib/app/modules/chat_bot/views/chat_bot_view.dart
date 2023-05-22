@@ -72,6 +72,7 @@ class ChatBotView extends GetView<ChatBotController> {
                               ? () {
                                   showDialog(
                                     context: context,
+                                    barrierDismissible: false,
                                     builder: (BuildContext context) {
                                       String temp = '';
                                       return AlertDialog(
@@ -183,13 +184,6 @@ class ChatBotView extends GetView<ChatBotController> {
                                                           ],
                                                         );
                                                       });
-                                              }),
-                                              const SizedBox(height: 20),
-                                              Obx(() {
-                                                return Text(
-                                                  controller.topicName.value ?? 'Speak',
-                                                  style: const TextStyle(fontSize: 25),
-                                                );
                                               }),
                                               const SizedBox(height: 20),
                                               ElevatedButton(
@@ -600,7 +594,7 @@ class ChatBotView extends GetView<ChatBotController> {
                 if (controller.sourceLang.value?.isNotEmpty ?? false) {
                   if ((controller.topicName.value?.isNotEmpty ?? false)) {
                   } else {
-                    log('Please enter topic first');
+                    showSnackBar('Please enter topic first');
                   }
                 } else {
                   showSnackBar('Please select source language first.');
