@@ -224,6 +224,7 @@ class ConverseView extends GetView<ConverseController> {
                                     onTapMic: (ongoing) {
                                       if ((controller.sourceLang.isNotEmpty ?? false) &&
                                           (controller.targetLang.isNotEmpty ?? false)) {
+                                        HapticFeedback.vibrate();
                                         controller.startRecording();
                                       } else {
                                         showSnackBar('Please select both language.');
