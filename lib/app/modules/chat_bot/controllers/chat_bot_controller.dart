@@ -31,6 +31,7 @@ class ChatBotController extends GetxController {
   RxBool isLoad = RxBool(false);
   RxBool isLoading = false.obs;
   int previousPlayingIndex = -1;
+  ScrollController languageScroll = ScrollController();
 
   Future<void> sendMessage() async {
     isLoad.value = true;

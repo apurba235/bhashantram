@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:bhashantram/app/common/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -48,6 +49,7 @@ class ConverseController extends GetxController {
   // RxBool playingAudio = RxBool(false);
   RxBool inputAudioPlay = RxBool(false);
   RxBool outputAudioPlay = RxBool(false);
+  ScrollController languageScrollController = ScrollController();
 
   Future<void> workingData() async {
     if (fromTarget) {

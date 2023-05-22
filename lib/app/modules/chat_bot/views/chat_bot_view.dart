@@ -44,128 +44,152 @@ class ChatBotView extends GetView<ChatBotController> {
                     ),
                   ],
                 ),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "ChatGPT",
-                          style: TextStyle(fontSize: 16, color: ColorConsts.blackColor),
-                        ),
-                        Row(
-                          children: const [
-                            Icon(Icons.circle, color: ColorConsts.greenColor, size: 12),
-                            SizedBox(width: 5),
-                            Text("Online", style: TextStyle(fontSize: 12, color: ColorConsts.greenColor)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Obx(() {
-                      return GestureDetector(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                (controller.getLanguageName(controller.sourceLang.value ?? 'Language')),
-                                style: const TextStyle(color: ColorConsts.blackColor),
-                              ),
-                              const Icon(Icons.arrow_drop_down, color: ColorConsts.blackColor)
+                title: SingleChildScrollView(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "ChatGPT",
+                            style: TextStyle(fontSize: 16, color: ColorConsts.blackColor),
+                          ),
+                          Row(
+                            children: const [
+                              Icon(Icons.circle, color: ColorConsts.greenColor, size: 12),
+                              SizedBox(width: 5),
+                              Text("Online", style: TextStyle(fontSize: 12, color: ColorConsts.greenColor)),
                             ],
                           ),
-                          onTap: () {
-                            Get.bottomSheet(isDismissible: false, Obx(() {
-                              return AppBottomSheet(
-                                onTapSelect: () {
-                                  if (controller.sourceLang.value != 'en') {
-                                    controller.getTransliterationModelId();
-                                  } else {
-                                    controller.transliterationModelsId = "";
-                                  }
-                                  Get.back();
-                                },
-                                selectButtonColor: (controller.sourceLang.value != null)
-                                    ? ColorConsts.blueColor
-                                    : ColorConsts.blueColor.withOpacity(0.3),
-                                customWidget: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        SizedBox(
-                                          height: Get.height * 0.4,
-                                          child: GridView.builder(
-                                            itemCount: (controller.languages.value?.languages?.length ?? 0),
-                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 2,
-                                              crossAxisSpacing: 10.0,
-                                              mainAxisExtent: 80,
-                                            ),
-                                            itemBuilder: (cx, index) {
-                                              return Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      controller.sourceLang.value = controller
-                                                              .languages.value?.languages?[index].sourceLanguage ??
-                                                          '';
-                                                      controller.getAsrAndTtsServiceId();
-                                                      if (controller.sourceLang.value != 'en') {
-                                                        controller.getTranslationId();
-                                                        controller.getResponseToOutputTranslationId();
-                                                      } else {
-                                                        controller.translationId = "";
-                                                        controller.responseToOutputTranslationId = "";
-                                                      }
-                                                      controller.selectedSourceLangIndex = index;
-                                                      controller.isLoading.value = true;
-                                                    },
-                                                    child: Container(
-                                                      padding: const EdgeInsets.symmetric(
-                                                        horizontal: 12.0,
-                                                        vertical: 20,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        color: index == controller.selectedSourceLangIndex
-                                                            ? Colors.grey.withOpacity(0.2)
-                                                            : null,
-                                                        borderRadius: BorderRadius.circular(12),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          controller.getLanguageName(
-                                                            controller.languages.value?.languages?[index]
-                                                                    .sourceLanguage ??
-                                                                '',
-                                                          ),
-                                                          style: const TextStyle(
-                                                              color: ColorConsts.blueColor, fontSize: 16),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Divider(color: ColorConsts.blueColor),
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
+                        ],
+                      ),
+                      Flexible(
+                        child: TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            backgroundColor: ColorConsts.greenColor.withOpacity(0.4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20)
+                          ),
+                          child: const Text('Enter Topic', style: TextStyle(color: ColorConsts.blackColor, overflow: TextOverflow.ellipsis),),
+                        ),
+                      ),
+                      Obx(() {
+                        return Flexible(
+                          child: GestureDetector(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      (controller.getLanguageName(controller.sourceLang.value ?? 'Language nvjvjhv vjhh hbkkkj')),
+                                      style: const TextStyle(color: ColorConsts.blackColor),
                                     ),
                                   ),
-                                ),
-                              );
-                            }));
-                          });
-                    }),
-                  ],
+                                  const Icon(Icons.arrow_drop_down, color: ColorConsts.blackColor)
+                                ],
+                              ),
+                              onTap: () {
+                                Get.bottomSheet(isDismissible: false, Obx(() {
+                                  return AppBottomSheet(
+                                    onTapSelect: () {
+                                      if (controller.sourceLang.value != 'en') {
+                                        controller.getTransliterationModelId();
+                                      } else {
+                                        controller.transliterationModelsId = "";
+                                      }
+                                      Get.back();
+                                    },
+                                    selectButtonColor: (controller.sourceLang.value != null)
+                                        ? ColorConsts.blueColor
+                                        : ColorConsts.blueColor.withOpacity(0.3),
+                                    customWidget: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          children: [
+                                            SizedBox(
+                                              height: Get.height * 0.4,
+                                              child: Scrollbar(
+                                                thumbVisibility: true,
+                                                controller: controller.languageScroll,
+                                                child: GridView.builder(
+                                                  controller: controller.languageScroll,
+                                                  itemCount: (controller.languages.value?.languages?.length ?? 0),
+                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 2,
+                                                    crossAxisSpacing: 10.0,
+                                                    mainAxisExtent: 80,
+                                                  ),
+                                                  itemBuilder: (cx, index) {
+                                                    return Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                      children: [
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            controller.sourceLang.value = controller
+                                                                    .languages.value?.languages?[index].sourceLanguage ??
+                                                                '';
+                                                            controller.getAsrAndTtsServiceId();
+                                                            if (controller.sourceLang.value != 'en') {
+                                                              controller.getTranslationId();
+                                                              controller.getResponseToOutputTranslationId();
+                                                            } else {
+                                                              controller.translationId = "";
+                                                              controller.responseToOutputTranslationId = "";
+                                                            }
+                                                            controller.selectedSourceLangIndex = index;
+                                                            controller.isLoading.value = true;
+                                                          },
+                                                          child: Container(
+                                                            padding: const EdgeInsets.symmetric(
+                                                              horizontal: 12.0,
+                                                              vertical: 20,
+                                                            ),
+                                                            decoration: BoxDecoration(
+                                                              color: index == controller.selectedSourceLangIndex
+                                                                  ? Colors.grey.withOpacity(0.2)
+                                                                  : null,
+                                                              borderRadius: BorderRadius.circular(12),
+                                                            ),
+                                                            child: Center(
+                                                              child: Text(
+                                                                controller.getLanguageName(
+                                                                  controller.languages.value?.languages?[index]
+                                                                          .sourceLanguage ??
+                                                                      '',
+                                                                ),
+                                                                style: const TextStyle(
+                                                                    color: ColorConsts.blueColor, fontSize: 16),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const Divider(color: ColorConsts.blueColor),
+                                                      ],
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }));
+                              }),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ),
               body: Padding(
