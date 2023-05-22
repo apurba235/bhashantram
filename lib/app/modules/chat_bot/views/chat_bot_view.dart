@@ -176,8 +176,8 @@ class ChatBotView extends GetView<ChatBotController> {
                                 alignment: data.userType == 'user' ? Alignment.topRight : Alignment.topLeft,
                                 child: Container(
                                   padding: data.userType == 'user'
-                                      ? const EdgeInsets.all(10.0)
-                                      : const EdgeInsets.only(left: 18.0, top: 12.0, bottom: 0.0, right: 5.0),
+                                      ? const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12)
+                                      : const EdgeInsets.only(left: 20.0, top: 12.0, bottom: 0.0, right: 10.0),
                                   margin: EdgeInsets.only(
                                       top: 25, bottom: 10, right: data.userType == "user" ? 0.0 : 40.0, left: 30.0),
                                   decoration: BoxDecoration(
@@ -243,7 +243,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                       Text(
                                         data.message,
                                         style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 18,
                                           fontFamily: 'Poppins',
                                           color:
                                               data.userType == 'user' ? ColorConsts.whiteColor : ColorConsts.blackColor,
@@ -349,20 +349,6 @@ class ChatBotView extends GetView<ChatBotController> {
                             )
                           : const SizedBox.shrink();
                     }),
-                    if (controller.isLoad.value) const ThreeDots(),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 10,
-                        child: SizedBox(
-                          height: 60,
-                          child: _buildTextComposer(),
-                        ),
-                      ),
-                    ),
                     Obx(() {
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -373,7 +359,7 @@ class ChatBotView extends GetView<ChatBotController> {
                               return GestureDetector(
                                 onTap: () {
                                   String temp = controller.chatController.text;
-                                  String output = temp.replaceAll(RegExp('[A-Za-z]'), '');
+                                  String output = temp.replaceAll(RegExp('[A-Za-z]'), '').trim();
                                   controller.chatController.text = '$output $data ';
                                   controller.chatController.selection = TextSelection.fromPosition(
                                     TextPosition(offset: controller.chatController.text.length),
@@ -392,7 +378,21 @@ class ChatBotView extends GetView<ChatBotController> {
                           ],
                         ),
                       );
-                    })
+                    }),
+                    if (controller.isLoad.value) const ThreeDots(),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 10,
+                        child: SizedBox(
+                          height: 60,
+                          child: _buildTextComposer(),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -460,10 +460,9 @@ class ChatBotView extends GetView<ChatBotController> {
             onPressed: (controller.sourceLang.value?.isNotEmpty ?? false)
                 ? () async {
                     if (controller.chatController.text.isNotEmpty) {
+                      controller.hints.value = null;
                       await controller.sendMessage();
                       FocusManager.instance.primaryFocus?.unfocus();
-                    }else{
-                      showSnackBar('hsdfjchvsd');
                     }
                   }
                 : () {
