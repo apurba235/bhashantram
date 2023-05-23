@@ -531,33 +531,37 @@ class ChatBotView extends GetView<ChatBotController> {
                             )
                           : const SizedBox.shrink();
                     }),
+                    if(controller.transliterationModelsId.isNotEmpty)
                     Obx(() {
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            ...List.generate(controller.hints.value?.output?.first.target?.length ?? 0, (index) {
-                              final data = controller.hints.value?.output?.first.target?[index] ?? '';
-                              return GestureDetector(
-                                onTap: () {
-                                  String temp = controller.chatController.text;
-                                  String output = temp.replaceAll(RegExp('[A-Za-z]'), '').trim();
-                                  controller.chatController.text = '$output $data ';
-                                  controller.chatController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: controller.chatController.text.length),
-                                  );
-                                  controller.hints.value = null;
-                                },
-                                child: Container(
-                                    margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10),
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: ColorConsts.greenColor.withOpacity(0.3)),
-                                    child: Text(data)),
-                              );
-                            })
-                          ],
+                        child: SizedBox(
+                          height: 50,
+                          child: Row(
+                            children: [
+                              ...List.generate(controller.hints.value?.output?.first.target?.length ?? 0, (index) {
+                                final data = controller.hints.value?.output?.first.target?[index] ?? '';
+                                return GestureDetector(
+                                  onTap: () {
+                                    String temp = controller.chatController.text;
+                                    String output = temp.replaceAll(RegExp('[A-Za-z]'), '').trim();
+                                    controller.chatController.text = '$output $data ';
+                                    controller.chatController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: controller.chatController.text.length),
+                                    );
+                                    controller.hints.value = null;
+                                  },
+                                  child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10),
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: ColorConsts.greenColor.withOpacity(0.3)),
+                                      child: Text(data)),
+                                );
+                              })
+                            ],
+                          ),
                         ),
                       );
                     }),
