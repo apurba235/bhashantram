@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:bhashantram/app/common/consts/asset_consts.dart';
+import 'package:bhashantram/app/common/consts/consts.dart';
 import 'package:bhashantram/app/modules/chat_bot/views/response_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +8,6 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-import '../../../common/consts/color_consts.dart';
 import '../../../common/widget/bottomsheet/bottomsheet.dart';
 import '../../../common/widget/component/microphone.dart';
 import '../../../common/widget/snackbar/custom_snackbar.dart';
@@ -245,16 +244,6 @@ class ChatBotView extends GetView<ChatBotController> {
                               onTap: () {
                                 Get.bottomSheet(isDismissible: false, Obx(() {
                                   return AppBottomSheet(
-                                    onTapSelect: () {
-                                      if (controller.sourceLang.value != 'en') {
-                                        controller.getTransliterationModelId();
-                                      } else {
-                                        controller.transliterationModelsId = "";
-                                      }
-                                      controller.topicName.value = null;
-                                      controller.topicController.clear();
-                                      Get.back();
-                                    },
                                     selectButtonColor: (controller.sourceLang.value != null)
                                         ? ColorConsts.blueColor
                                         : ColorConsts.blueColor.withOpacity(0.3),
@@ -266,7 +255,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
                                             SizedBox(
-                                              height: Get.height * 0.4,
+                                              height: Get.height * 0.5,
                                               child: Scrollbar(
                                                 thumbVisibility: true,
                                                 controller: controller.languageScroll,
@@ -297,7 +286,16 @@ class ChatBotView extends GetView<ChatBotController> {
                                                               controller.responseToOutputTranslationId = "";
                                                             }
                                                             controller.selectedSourceLangIndex = index;
-                                                            controller.isLoading.value = true;
+                                                            /// onTapSelect action
+                                                            if (controller.sourceLang.value != 'en') {
+                                                              controller.getTransliterationModelId();
+                                                            } else {
+                                                              controller.transliterationModelsId = "";
+                                                            }
+                                                            controller.topicName.value = null;
+                                                            controller.topicController.clear();
+                                                            Get.back();
+                                                            // controller.isLoading.value = true;
                                                           },
                                                           child: Container(
                                                             padding: const EdgeInsets.symmetric(
@@ -605,7 +603,7 @@ class ChatBotView extends GetView<ChatBotController> {
               autofocus: false,
               controller: controller.chatController,
               decoration: InputDecoration.collapsed(
-                hintText: controller.recordingOngoing.value ? "Recording.." : "Hello ChatGPT!",
+                hintText: controller.recordingOngoing.value ? StringConsts.recording : StringConsts.chatLabel,
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: controller.recordingOngoing.value ? ColorConsts.tomatoRed : ColorConsts.blueColor,
@@ -625,42 +623,43 @@ class ChatBotView extends GetView<ChatBotController> {
             return MicroPhone(
               onTapMic: (controller.topicName.value?.isNotEmpty ?? false)
                   ? (ongoing) {
-                      log('started ');
-                      HapticFeedback.vibrate();
-                      controller.startRecording();
-                    }
+                log('started ');
+                HapticFeedback.vibrate();
+                controller.startRecording();
+              }
                   : (o) => showSnackBar('Please enter your topic first'),
               onTapCancel: (controller.topicName.value?.isNotEmpty ?? false)
                   ? () async {
-                      log('stopped');
-                      await controller.stopRecordingAndGetResult();
-                      await controller.computeAsr();
-                      if (controller.chatController.text.isNotEmpty) {
-                        log('message', name: 'Error Debugging');
-                        await controller.sendMessage();
-                      } else {
-                        showSnackBar('Please speak properly');
-                      }
-                    }
+                log('stopped');
+                await controller.stopRecordingAndGetResult();
+                await controller.computeAsr();
+                if (controller.chatController.text.isNotEmpty) {
+                  log('message', name: 'Error Debugging');
+                  await controller.sendMessage();
+                } else {
+                  showSnackBar('Please speak properly');
+                }
+              }
                   : () => showSnackBar('Please enter your topic first'),
               padding: const EdgeInsets.all(10),
               micHeight: 20,
               micColor: controller.recordingOngoing.value ? Colors.red : null,
             );
           }),
-          IconButton(
-            onPressed: (controller.topicName.value?.isNotEmpty ?? false)
+          const SizedBox(width: 5),
+          GestureDetector(
+            onTap: (controller.topicName.value?.isNotEmpty ?? false)
                 ? () async {
-                    if (controller.chatController.text.isNotEmpty) {
-                      controller.hints.value = null;
-                      await controller.sendMessage();
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    }
-                  }
+              if (controller.chatController.text.isNotEmpty) {
+                controller.hints.value = null;
+                await controller.sendMessage();
+                FocusManager.instance.primaryFocus?.unfocus();
+              }
+            }
                 : () {
-                    log(controller.chatController.text.isNotEmpty.toString(), name: 'inputBOT');
-                  },
-            icon: const Icon(Icons.send, color: ColorConsts.blueColor),
+              log(controller.chatController.text.isNotEmpty.toString(), name: 'inputBOT');
+            },
+            child: const Icon(Icons.send, color: ColorConsts.blueColor),
           ),
         ],
       ),

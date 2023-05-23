@@ -30,7 +30,7 @@ class ChatBotController extends GetxController {
   final String reasonToStop = 'stop';
   // late String check = "-->";
   RxBool isLoad = RxBool(false);
-  RxBool isLoading = false.obs;
+  // RxBool isLoading = false.obs;
   int previousPlayingIndex = -1;
   ScrollController languageScroll = ScrollController();
 
