@@ -1,21 +1,23 @@
-import 'package:bhashantram/app/common/consts/consts.dart';
-import 'package:bhashantram/app/data/ui_models/menu_model.dart';
-import 'package:bhashantram/app/routes/app_pages.dart';
+
 import 'package:get/get.dart';
+
+import '../../../common/consts/consts.dart';
+import '../../../data/ui_models/menu_model.dart';
+import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   List<MenuModel> menuItems = [
     MenuModel(
         menuBackgroundImage: AssetConsts.flagOne,
         menuIcon: AssetConsts.translate,
-        menuTitle: 'Converse',
-        menuSubTitle: 'Start converstation to your preferred language',
+        menuTitle: StringConsts.converse,
+        menuSubTitle: StringConsts.converseSubTitle,
         onTapMenu: () => Get.toNamed(Routes.CONVERSE)),
     MenuModel(
       menuBackgroundImage: AssetConsts.flagTwo,
       menuIcon: AssetConsts.camera,
-      menuTitle: 'Chat Bot',
-      menuSubTitle: 'Ask question to the bot',
+      menuTitle: StringConsts.botName,
+      menuSubTitle: StringConsts.poweredByChatGpt,
       onTapMenu: () => Get.toNamed(Routes.CHAT_BOT),
     ),
   ];

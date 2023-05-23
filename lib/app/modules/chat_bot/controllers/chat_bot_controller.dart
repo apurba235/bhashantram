@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:bhashantram/app/common/consts/consts.dart';
 import 'package:bhashantram/app/common/widget/snackbar/custom_snackbar.dart';
 import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,12 +26,9 @@ class ChatBotController extends GetxController {
   // chatbot code
   TextEditingController chatController = TextEditingController();
   String apiKey = AppUrl.chatApikey;
-  // Rx<List<ChatMessage>> chats = Rx<List<ChatMessage>>([]);
   Rx<List<ChatModel>> conversations = Rx<List<ChatModel>>([]);
   final String reasonToStop = 'stop';
-  // late String check = "-->";
   RxBool isLoad = RxBool(false);
-  // RxBool isLoading = false.obs;
   int previousPlayingIndex = -1;
   ScrollController languageScroll = ScrollController();
 
@@ -45,34 +43,14 @@ class ChatBotController extends GetxController {
       isPlaying: false.obs,
       isComputeTTs: false.obs,
     );
-    // ChatMessage message = ChatMessage(
-    //   text: chatController.text,
-    //   sender: "user",
-    //   audioPath: recordedAudioPath.isNotEmpty ? recordedAudioPath : null,
-    // );
     recordedAudioPath = '';
     conversations.value.insert(0, newMessage);
-    // chats.value.insert(0, message);
-    // chats.refresh();
     conversations.refresh();
-    // bool checkTrue = false;
-    // if (chatController.text.contains(check)) {
-    // if (triggerPoint) {
-    //   checkTrue = true;
-    // } else {
-    //   checkTrue = false;
-    // }
     if (translationId.isNotEmpty) {
       botInput = await computeTranslation(workingInput, translationId, sourceLang.value ?? "", "en");
     } else {
       botInput = newMessage.message;
     }
-
-    // log(chats.value.first.text, name: "check");
-    // chatController.clear();
-    // if (checkTrue) {
-    //   botInput =  botInput;
-    // }
     String response = "";
     response = await sendMessageToGpt(botInput, triggerPoint);
     if (responseToOutputTranslationId.isNotEmpty) {
@@ -81,10 +59,7 @@ class ChatBotController extends GetxController {
     ChatModel botReply = ChatModel(message: response, userType: "bot", isPlaying: false.obs, isComputeTTs: false.obs);
     conversations.value.insert(0, botReply);
     conversations.refresh();
-    // ChatMessage botMessage = ChatMessage(text: response, sender: "bot");
-    // chats.value.insert(0, botMessage);
     isLoad.value = false;
-    // chats.refresh();
     isLoad.refresh();
   }
 
@@ -192,7 +167,7 @@ class ChatBotController extends GetxController {
   String responseToOutputTranslationId = '';
   bool isMicPermissionGranted = false;
   final VoiceRecorder _voiceRecorder = VoiceRecorder();
-  int samplingRate = 8000;
+  int samplingRate = 16000;
   RxBool recordingOngoing = RxBool(false);
   RxBool topicRecordingOngoing = RxBool(false);
   String encodedAudio = '';
@@ -269,9 +244,6 @@ class ChatBotController extends GetxController {
         hints.value = response;
       }
     }
-    // hints.value?.output?.first.target?.forEach((element) {
-    //   log(element, name: 'Hints');
-    // });
   }
 
   void getTransliterationModelId() {
@@ -324,7 +296,7 @@ class ChatBotController extends GetxController {
         topicName.value = asrResponse.value?.pipelineResponse?.first.output?.first.source ?? '';
         topicController.text = topicName.value ?? '';
       }else{
-        showSnackBar('Please speak properly');
+        showSnackBar(StringConsts.recordingError);
       }
     }else{
       if(asrResponse.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){

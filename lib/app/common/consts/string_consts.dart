@@ -1,6 +1,11 @@
 class StringConsts {
   static const appName = 'Bhashantram';
   static const converse = 'Converse';
+  static const botName = 'GyanEY';
+  static const converseSubTitle = 'Start converstation to your preferred language';
+  static const poweredByChatGpt = 'Powered by ChatGPT';
+  static const online = 'Online';
+  static const language = 'Language';
   static const initialConverseLabel = 'Press mic to begin conversion';
   static const recording = 'Recording..';
   static const chatLabel = 'Hello ChatGPT!';
@@ -14,4 +19,11 @@ class StringConsts {
   static const languageSelectionError = 'Please select both language.';
   static const sourceLanguageSelectionError = 'Please select source language first.';
   static const responseError = 'Response not received. Please speak properly.';
+  static const topicLabel = 'Please enter your topic..';
+  static const or = 'OR';
+  static const setTopic = 'Set Topic';
+  static const enterTopic = 'Enter Topic';
+  static const botLanguageError = 'Please select your preferred language first.';
+  static const topicError = 'Please enter topic first';
+  static const recordingError = 'Please speak properly';
 }
