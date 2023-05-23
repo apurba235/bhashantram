@@ -141,7 +141,7 @@ class ChatBotView extends GetView<ChatBotController> {
                                                 onChanged: (value) {
                                                   temp = value;
                                                   controller.topicName.value = null;
-                                                  if (controller.sourceLang.value != 'en') {
+                                                  if (temp.isNotEmpty && controller.sourceLang.value != 'en') {
                                                     controller.getTransliterationInput(true, temp);
                                                     if (!(temp[temp.length - 1].contains(RegExp('[^A-Za-z]')))) {
                                                       controller.computeTransliteration(true);
@@ -636,6 +636,7 @@ class ChatBotView extends GetView<ChatBotController> {
                       await controller.stopRecordingAndGetResult();
                       await controller.computeAsr();
                       if (controller.chatController.text.isNotEmpty) {
+                        log('message', name: 'Error Debugging');
                         await controller.sendMessage();
                       } else {
                         showSnackBar('Please speak properly');
