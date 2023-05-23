@@ -1,3 +1,4 @@
+import 'package:bhashantram/app/common/consts/app_url.dart';
 import 'package:bhashantram/app/data/network_client.dart';
 import 'package:bhashantram/app/data/network_models/asr_response.dart';
 import 'package:bhashantram/app/data/network_models/asr_translation_tts_response.dart';
@@ -22,8 +23,8 @@ class BhashiniCalls extends NetworkClient {
   late Map<String, dynamic> computeHeader;
 
   var configHeader = {
-    'userID': '965355806bf84442a8a168259ed8c06f',
-    'ulcaApiKey': '4209d60edc-70e5-4b71-8427-c4665743e909'
+    'userID': AppUrl.ulcaUserId,
+    'ulcaApiKey': AppUrl.ulcaApiKey
   };
 
   void generateComputeHeader(String key, String value) {
@@ -59,7 +60,7 @@ class BhashiniCalls extends NetworkClient {
               "language": {"sourceLanguage": sourceLang},
               "serviceId": serviceId,
               "audioFormat": "wav",
-              "samplingRate": 8000
+              "samplingRate": 16000
             }
           }
         ],

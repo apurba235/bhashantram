@@ -8,7 +8,7 @@ class StringConsts {
   static const language = 'Language';
   static const initialConverseLabel = 'Press mic to begin conversion';
   static const recording = 'Recording..';
-  static const chatLabel = 'Hello ChatGPT!';
+  static const chatLabel = 'Hello $botName.. $poweredByChatGpt';
   static const sourceLanguage = 'Source Language';
   static const targetLanguage = 'Target Language';
   static const loadingText = 'Hold on. We are getting your result.';
