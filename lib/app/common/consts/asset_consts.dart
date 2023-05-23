@@ -16,12 +16,13 @@ class AssetConsts {
   static const copy = '$basePathPng/copy.png';
   static const share = '$basePathPng/share.png';
   static const speaker = '$basePathPng/speaker.png';
+  static const bot = '$basePathPng/bot.png';
+  static const send = '$basePathPng/send.png';
 
   /// Svg Assets
   static const wave = '$basePathSvg/wave.svg';
 
   /// Lottie Assets
   static const recording = '$basePathLottie/voice-line-wave-animation.json';
-  static const bot = '$basePathPng/bot.png';
-  static const send = '$basePathPng/send.png';
+  static const loading = '$basePathLottie/loading_line_animation.json';
 }
