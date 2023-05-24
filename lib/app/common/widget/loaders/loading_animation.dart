@@ -44,7 +44,7 @@ class LoadingAnimation extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 14),
-                Text(footerText, style: const TextStyle(fontSize: 20),),
+                Text(footerText, style: const TextStyle(fontSize: 20)),
                 const SizedBox(height: 20)
               ],
             ),

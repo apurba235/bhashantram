@@ -15,10 +15,15 @@ class ConverseView extends GetView<ConverseController> {
     return Scaffold(
       backgroundColor: ColorConsts.whiteColor,
       appBar: AppBar(
-        title: const Text(
-          StringConsts.converse,
-          style: TextStyle(color: ColorConsts.blackColor, fontSize: 24),
+        title: Center(
+          child: Text(
+            StringConsts.converse,
+            style: TextStyle(color: ColorConsts.blackColor.withOpacity(0.8), fontSize: 40),
+          ),
         ),
+        actions: const [
+          Icon(Icons.arrow_back_outlined, color: ColorConsts.whiteColor, size: 50)
+        ],
         automaticallyImplyLeading: true,
         backgroundColor: ColorConsts.whiteColor,
         elevation: 0.0,
@@ -61,12 +66,12 @@ class ConverseView extends GetView<ConverseController> {
                                                   Text(
                                                     controller.getLanguageName(
                                                         controller.sourceLang.value ?? StringConsts.sourceLanguage),
-                                                    style: const TextStyle(color: ColorConsts.blueColor, fontSize: 18),
+                                                    style: const TextStyle(color: ColorConsts.blueColor, fontSize: 22),
                                                   ),
                                                   const SizedBox(height: 12),
                                                   Text(
                                                     controller.input.value ?? StringConsts.initialConverseLabel,
-                                                    style: const TextStyle(fontSize: 20, color: ColorConsts.blueColor),
+                                                    style: const TextStyle(fontSize: 25, color: ColorConsts.blueColor),
                                                   ),
                                                   const SizedBox(height: 15),
                                                 ],
@@ -128,12 +133,12 @@ class ConverseView extends GetView<ConverseController> {
                                                   Text(
                                                     controller.getLanguageName(
                                                         controller.targetLang.value ?? StringConsts.targetLanguage),
-                                                    style: const TextStyle(color: ColorConsts.tomatoRed, fontSize: 18),
+                                                    style: const TextStyle(color: ColorConsts.tomatoRed, fontSize: 22),
                                                   ),
                                                   const SizedBox(height: 12),
                                                   Text(
                                                     controller.output.value ?? StringConsts.initialConverseLabel,
-                                                    style: const TextStyle(fontSize: 20, color: ColorConsts.tomatoRed),
+                                                    style: const TextStyle(fontSize: 25, color: ColorConsts.tomatoRed),
                                                   ),
                                                 ],
                                               );
@@ -305,7 +310,7 @@ class ConverseView extends GetView<ConverseController> {
                                                                             textAlign: TextAlign.center,
                                                                             style: const TextStyle(
                                                                                 color: ColorConsts.blueColor,
-                                                                                fontSize: 16),
+                                                                                fontSize: 20),
                                                                           ),
                                                                         ),
                                                                       ),
@@ -404,7 +409,7 @@ class ConverseView extends GetView<ConverseController> {
                                                                                 textAlign: TextAlign.center,
                                                                                 style: const TextStyle(
                                                                                     color: ColorConsts.blueColor,
-                                                                                    fontSize: 18),
+                                                                                    fontSize: 20),
                                                                               ),
                                                                             ),
                                                                           ),

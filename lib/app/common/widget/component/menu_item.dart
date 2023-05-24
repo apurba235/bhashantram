@@ -14,7 +14,7 @@ class MenuItem extends StatelessWidget {
 
   final void Function()? onTapMenu;
   final String cardBackgroundImage;
-  final String menuIcon;
+  final Icon menuIcon;
   final String menuTitle;
   final String menuSubTitle;
 
@@ -34,24 +34,25 @@ class MenuItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(menuIcon),
+            menuIcon,
             const SizedBox(width: 20),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  menuTitle,
-                  style: const TextStyle(color: ColorConsts.whiteColor, fontSize: 20),
-                ),
-                const SizedBox(height: 15),
-                Text(
-                  menuSubTitle,
-                  style: const TextStyle(color: ColorConsts.whiteColor, fontSize: 10),
-                )
-              ],
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    menuTitle,
+                    style: const TextStyle(color: ColorConsts.whiteColor, fontSize: 25),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    menuSubTitle,
+                    style: const TextStyle(color: ColorConsts.whiteColor, fontSize: 15),
+                  )
+                ],
+              ),
             )
           ],
         ),

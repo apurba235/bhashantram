@@ -2,8 +2,8 @@ class StringConsts {
   static const appName = 'Bhashantram';
   static const converse = 'Converse';
   static const botName = 'GyanEY';
-  static const converseSubTitle = 'Start converstation to your preferred language';
-  static const poweredByChatGpt = 'Powered by ChatGPT';
+  static const converseSubTitle = 'Conversation in your preferred language';
+  static const poweredByChatGpt = 'Powered by Bhashini and GPT';
   static const online = 'Online';
   static const language = 'Language';
   static const initialConverseLabel = 'Press mic to begin conversion';

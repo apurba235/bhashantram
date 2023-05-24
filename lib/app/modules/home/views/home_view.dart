@@ -34,11 +34,15 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 25.0, top: 20.0),
-                  child: Text(
-                    StringConsts.appName,
-                    style: TextStyle(fontSize: 24, color: ColorConsts.whiteColor),
+                const Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 25.0, top: 20.0),
+                    child: Text(
+                      StringConsts.appName,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 50, color: ColorConsts.whiteColor),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),

@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
+
 class MenuModel {
   String menuBackgroundImage;
-  String menuIcon;
+  Icon menuIcon;
   String menuTitle;
   String menuSubTitle;
   void Function()? onTapMenu;
