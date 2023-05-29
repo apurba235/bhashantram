@@ -43,7 +43,7 @@ class BhashiniCalls extends NetworkClient {
         "pipelineRequestConfig": {"pipelineId": '64392f96daac500b55c543cd'}
       },
       header: configHeader,
-      showResponse: false,
+      showResponse: true,
     );
     return (response == null) ? null : LanguageModels.fromJson(response);
   }
