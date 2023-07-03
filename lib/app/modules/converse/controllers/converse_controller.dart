@@ -4,19 +4,22 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:bhashantram/app/common/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../common/consts/consts.dart';
 import '../../../common/utils/language_code.dart';
 import '../../../common/utils/permission_handler.dart';
 import '../../../common/utils/voice_recorder.dart';
+import '../../../common/widget/snackbar/custom_snackbar.dart';
 import '../../../data/api_calls/bhashini_calls.dart';
 import '../../../data/network_models/asr_translation_tts_response.dart';
 import '../../../data/network_models/language_models.dart';
 
 class ConverseController extends GetxController {
   RxBool languageLoader = RxBool(false);
+  RxBool computationLoader = RxBool(false);
   Rxn<LanguageModels?> languages = Rxn<LanguageModels>();
   Rxn<AsrTranslationTtsResponse?> asrTranslationTts = Rxn<AsrTranslationTtsResponse>();
   List<String> sourceLanguages = [];
@@ -45,9 +48,9 @@ class ConverseController extends GetxController {
   bool fromTarget = false;
   final PlayerController _playerController = PlayerController();
   String recordedAudioPath = '';
-  // RxBool playingAudio = RxBool(false);
   RxBool inputAudioPlay = RxBool(false);
   RxBool outputAudioPlay = RxBool(false);
+  ScrollController languageScrollController = ScrollController();
 
   Future<void> workingData() async {
     if (fromTarget) {
@@ -106,13 +109,13 @@ class ConverseController extends GetxController {
   }
 
   Future<void> computeAsrTranslationTts() async {
-    languageLoader.value = true;
+    computationLoader.value = true;
     AsrTranslationTtsResponse? response = await BhashiniCalls.instance.computeAsrTranslationTts(
         computeURL, workingSource, workingTarget, encodedAudio, asrServiceId, translationId, ttsId);
     if (response != null) {
       asrTranslationTts.value = response;
     }
-    languageLoader.value = false;
+    computationLoader.value = false;
     if(asrTranslationTts.value?.pipelineResponse?.first.output?.first.source?.isNotEmpty ?? false){
       if (fromTarget) {
         input.value = asrTranslationTts.value?.pipelineResponse
@@ -163,7 +166,7 @@ class ConverseController extends GetxController {
     }else{
       input.value = null;
       output.value = null;
-      showSnackBar('Response not received. Please speak properly.');
+      showSnackBar(StringConsts.responseError);
     }
   }
 
@@ -212,7 +215,6 @@ class ConverseController extends GetxController {
     }else{
       outputAudioPlay.value = true;
     }
-    // playingAudio.value = true;
     if (_playerController.playerState == PlayerState.playing || _playerController.playerState == PlayerState.paused) {
       await _playerController.stopPlayer();
     }
@@ -222,7 +224,6 @@ class ConverseController extends GetxController {
     );
     await _playerController.startPlayer(finishMode: FinishMode.pause);
     await Future.delayed(Duration(milliseconds: _playerController.maxDuration));
-    // playingAudio.value = false;
     if(inputAudio){
       inputAudioPlay.value = false;
     }else{

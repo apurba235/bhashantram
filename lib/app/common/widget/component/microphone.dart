@@ -23,9 +23,9 @@ class MicroPhone extends StatelessWidget {
       onTapUp: (te){
         onTapCancel!();
       },
-      onPanEnd: (te){
-        onTapCancel!();
-      },
+      // onPanEnd: (te){
+      //   onTapCancel!();
+      // },
       onTapCancel: onTapCancel,
       child: Container(
         padding: padding ?? const EdgeInsets.all(18),

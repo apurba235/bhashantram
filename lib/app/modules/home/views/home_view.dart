@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 
+import '../../../common/widget/widget.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -33,11 +34,15 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 25.0, top: 20.0),
-                  child: Text(
-                    StringConsts.appName,
-                    style: TextStyle(fontSize: 24, color: ColorConsts.whiteColor),
+                const Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 25.0, top: 20.0),
+                    child: Text(
+                      StringConsts.appName,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 50, color: ColorConsts.whiteColor),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -61,64 +66,6 @@ class HomeView extends GetView<HomeController> {
                   )
                 ],
               ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  const MenuItem({
-    super.key,
-    this.onTapMenu,
-    required this.cardBackgroundImage,
-    required this.menuIcon,
-    required this.menuTitle,
-    required this.menuSubTitle,
-  });
-
-  final void Function()? onTapMenu;
-  final String cardBackgroundImage;
-  final String menuIcon;
-  final String menuTitle;
-  final String menuSubTitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTapMenu,
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        margin: const EdgeInsets.only(bottom: 30),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(cardBackgroundImage),
-            fit: BoxFit.fill,
-            colorFilter: ColorFilter.mode(ColorConsts.blackColor.withOpacity(0.8), BlendMode.darken),
-          ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image.asset(menuIcon),
-            const SizedBox(width: 20),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  menuTitle,
-                  style: const TextStyle(color: ColorConsts.whiteColor, fontSize: 20),
-                ),
-                const SizedBox(height: 15),
-                Text(
-                  menuSubTitle,
-                  style: const TextStyle(color: ColorConsts.whiteColor, fontSize: 10),
-                )
-              ],
             )
           ],
         ),

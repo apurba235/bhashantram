@@ -6,30 +6,32 @@ class LanguageButton extends StatelessWidget {
     super.key,
     required this.languageName,
     this.onTapButton,
+    this.color = ColorConsts.blueColor,
   });
 
   final String languageName;
   final void Function()? onTapButton;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTapButton,
-      child: Card(
-        elevation: 2.0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-          child: Row(
-            children: [
-              Text(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
                 languageName,
-                style: const TextStyle(color: ColorConsts.blueColor),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: color, fontSize: 22),
               ),
-              const SizedBox(width: 29),
-              const Icon(Icons.arrow_drop_down_outlined, size: 30, color: ColorConsts.blueColor)
-            ],
-          ),
+            ),
+            const SizedBox(width: 29),
+            Icon(Icons.arrow_drop_down_outlined, size: 30, color: color)
+          ],
         ),
       ),
     );
