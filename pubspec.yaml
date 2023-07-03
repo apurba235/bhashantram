@@ -3,14 +3,25 @@ version: 1.0.0+1
 publish_to: none
 description: A new Flutter project.
 environment: 
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=2.19.4 <3.0.0'
 
 dependencies: 
   cupertino_icons: ^1.0.2
   get: 4.6.5
   connectivity_plus: ^3.0.3
   dio: ^5.0.1
-  flutter: 
+  chat_gpt_sdk: 2.1.0
+  http: ^0.13.6
+  velocity_x: ^3.6.0
+  record: ^4.4.4
+  path_provider: ^2.0.14
+  permission_handler: ^10.2.0
+  lottie: ^2.3.2
+  audio_waveforms: ^1.0.0
+  share_plus: ^7.0.1
+  animated_text_kit: ^4.2.2
+  flutter_svg: ^2.0.4
+  flutter:
     sdk: flutter
 
 dev_dependencies: 
@@ -20,4 +31,8 @@ dev_dependencies:
 
 flutter: 
   uses-material-design: true
+  assets:
+    - assets/png/
+    - assets/lottie/
+    - assets/svg/
 
